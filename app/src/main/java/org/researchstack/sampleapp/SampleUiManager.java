@@ -129,12 +129,14 @@ public class SampleUiManager extends UiManager
         {
             Map mapStepResult = stepResult.getResults();
             Boolean answer = getBooleanAnswer(mapStepResult, "signupInclusionAgeStep");
+
             if (answer == false) return false;
-            answer = getBooleanAnswer(mapStepResult, "signupInclusionDiagnosisStep");
-            if (answer == false) return false;
+
             answer = getBooleanAnswer(mapStepResult, "signupInclusionEnglishStep");
+
             if (answer == false) return false;
             answer = getBooleanAnswer(mapStepResult, "signupInclusionUsaStep");
+
             if (answer == false) return false;
             return true;
         }

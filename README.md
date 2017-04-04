@@ -1,6 +1,6 @@
 
 
-This is an Android app using the ResearchStack framework for the Ecological Momentary Assessment using the Photographic Affect Meter (PAM).  For more information on PAM please check out [this site](http://idl.cornell.edu/projects/pam/). 
+This is an Android application using the ResearchStack framework for a Ecological Momentary Assessment implemented using the Photographic Affect Meter (PAM).  For more information on PAM please check out [this site](http://idl.cornell.edu/projects/pam/). 
 
 ### How do I get set up? ###
 

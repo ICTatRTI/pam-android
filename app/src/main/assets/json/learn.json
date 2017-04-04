@@ -12,10 +12,7 @@
           "title": "How This Study Works",
           "details": "learn_howstudyworks"
         },
-        {
-          "title": "Who Can Participate?",
-          "details": "learn_eligibletoparticipate"
-        },
+
         {
           "title": "Who Is Running This Study?",
           "details": "learn_whoisrunning"
@@ -25,14 +22,7 @@
     {
       "section_title": "Resources",
       "row_items": [
-        {
-          "title": "Robot Overview",
-          "details": "learn_overview"
-        },
-        {
-          "title": "Treatment Options",
-          "details": "learn_treatment"
-        },
+
         {
           "title": "Online Resources",
           "details": "learn_onlineresources"

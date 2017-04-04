@@ -21,7 +21,7 @@ android {
         buildConfigField 'String', 'STUDY_ID', studyId
         buildConfigField 'String', 'STUDY_NAME', studyName
         buildConfigField 'String', 'STUDY_SUBPOPULATION_GUID', studyId // default subpopulation
-        buildConfigField 'String', 'STUDY_BASE_URL', "\"https://webservices.sagebridge.org/\""
+        buildConfigField 'String', 'STUDY_BASE_URL', "\"https://researchnet.ictedge.org/\""
     }
     buildTypes {
         release {

@@ -88,9 +88,6 @@ public class SampleUiManager extends UiManager
                 "Are you over 18 years of age?",
                 booleanAnswerFormat);
 
-        QuestionStep diagnosisStep = new QuestionStep("signupInclusionDiagnosisStep",
-                "Have you been diagnosed with pre-diabetes or diabetes?",
-                booleanAnswerFormat);
 
         QuestionStep englishStep = new QuestionStep("signupInclusionEnglishStep",
                 "Can you read and understand English in order to provide informed consent and to follow the instructions?",
@@ -101,12 +98,11 @@ public class SampleUiManager extends UiManager
                 booleanAnswerFormat);
 
 
-
         FormStep eligibilityFormStep = new FormStep(OnboardingTask.SignUpInclusionCriteriaStepIdentifier, "", "");
         // Set items on FormStep
         eligibilityFormStep.setStepTitle(R.string.rss_eligibility);
         eligibilityFormStep.setOptional(false);
-        eligibilityFormStep.setFormSteps(ageStep, diagnosisStep, englishStep, usaStep);
+        eligibilityFormStep.setFormSteps(ageStep, englishStep, usaStep);
 
         return eligibilityFormStep;
 

@@ -32,7 +32,7 @@ public class SampleResourceManager extends ResourceManager
     @Override
     public Resource getConsentHtml()
     {
-        return new Resource(Resource.TYPE_HTML, BASE_PATH_HTML, "asthma_fullconsent");
+        return new Resource(Resource.TYPE_HTML, BASE_PATH_HTML, "general_fullconsent");
     }
 
     @Override

@@ -1,8 +1,8 @@
 {
   "documentProperties": {
-    "htmlDocument": "asthma_fullconsent",
-    "investigatorShortDescription": "Mount Sinai",
-    "investigatorLongDescription": "Mount Sinai and its partners",
+    "htmlDocument": "general_fullconsent",
+    "investigatorShortDescription": "RTI",
+    "investigatorLongDescription": "RTI and its partners",
     "htmlContent": "consent_section_html_sharing_rsch",
     "requiresSignature": true,
     "requiresName": true,
@@ -62,77 +62,30 @@
   "sections": [
     {
       "sectionType": "overview",
-      "sectionSummary": "Mount Sinai is doing a research study about whether an asthma app on your iPhone will help you to monitor your asthma. This simple walkthrough will help you to understand the study, the impact it will have on your life, and will allow you to provide consent to participate.",
+      "sectionSummary": "You are invited to participate in an exemplar research study to examine the correlation between mood and exercise.Your participation in this study is entirely voluntary.",
       "sectionHtmlContent": "consent_section_html_welcome"
     },
     {
-      "sectionType": "custom",
-      "sectionTitle": "We'll Test Your Understanding",
-      "sectionSummary": "We’ll walk you through some information on our Asthma research study, and  provide a short quiz at the end to confirm your understanding.",
-      "sectionHtmlContent": "consent_section_html_quiz_headsup"
-    },
-    {
       "sectionType": "dataGathering",
-      "sectionSummary": "This study will gather location and sensor data from your phone and personal fitness devices (such as Apple Watch) with your permission. You can choose not to do this and still participate in the study.",
+      "sectionSummary": "You need to have the study app on your phone in order to participate in this study. Everyone who enrolls will first complete an electronic registration process. Registration will include entering your name, email address and other general information about yourself. As part of this process you will also confirm your agreement to participate in the study.",
       "sectionHtmlContent": "consent_section_html_dataprocessing"
     },
     {
       "sectionType": "privacy",
-      "sectionSummary": "To protect your privacy, we will use a random code instead of your name on your study data.",
+      "sectionSummary": "Because information about you and your health is personal and private, it generally cannot be used in a research study without your written authorization. If you sign this consent form, you will provide that authorization. You do not have to sign this form. But if you do not, you will not be able to participate in this research study.",
       "sectionHtmlContent": "consent_section_html_protectingdata"
     },
     {
       "sectionType": "dataUse",
       "sectionTitle": "Data Use",
-      "sectionSummary": "We will not share your information with any commercial third parties such as advertisers.",
+      "sectionSummary": "Because information about you and your health is personal and private, it generally cannot be used in a research study without your written authorization. If you sign this consent form, you will provide that authorization. You do not have to sign this form. But if you do not, you will not be able to participate in this research study.",
       "sectionHtmlContent": "consent_section_html_datause"
-    },
-    {
-      "sectionType": "timeCommitment",
-      "sectionSummary": "Your participation in this study will average 15 minutes each week for 6 months.",
-      "sectionHtmlContent": "consent_section_html_time"
-    },
-    {
-      "sectionType": "studySurvey",
-      "sectionTitle": "Study Tasks",
-      "sectionSummary": "You will answer a few simple daily and weekly questions about your asthma. These questions should only take a few minutes.",
-      "sectionHtmlContent": "consent_section_html_study_survey"
-    },
-    {
-      "sectionType": "studyTasks",
-      "sectionTitle": "Potential Benefits",
-      "sectionSummary": "You could learn more about asthma and monitoring your health that may help you to be healthier. It is possible that neither you nor others may benefit from taking part in this research.",
-      "sectionHtmlContent": "consent_section_html_study_task"
     },
     {
       "sectionType": "withdrawing",
       "sectionTitle": "Withdrawing",
-      "sectionSummary": "There will be no penalty to you if you decide not to take part in this study. You can withdraw your consent and discontinue participation at any time.",
+      "sectionSummary": "Your participation in this study is voluntary. You do not have to sign this consent form. But if you do not, you will not be able to participate in this research study. You may decide not to participate or you may leave the study at any time. Either of these decisions will not result in any penalty or loss of benefits to which you are entitled.",
       "sectionHtmlContent": "consent_section_html_withdrawing"
-    },
-    {
-      "sectionType": "custom",
-      "sectionTitle": "Secure Database",
-      "sectionSummary": "Your study data will be stored in a manner that maintains strict information technology procedures to safeguard your information and to prevent improper access.",
-      "sectionImage": "rsb_consent_section_potential_benefits_alt",
-      "sectionHtmlContent": "consent_section_html_security",
-      "sectionAnimationUrl": "10_PotentialBenifits_Alt"
-    },
-    {
-      "sectionType": "custom",
-      "sectionTitle": "Issues to Consider",
-      "sectionSummary": "This Asthma app does not replace your usual medical care. Continue your asthma care with your usual doctor.",
-      "sectionImage": "rsb_consent_section_visiting_doctor",
-      "sectionHtmlContent": "consent_section_html_talktodoctor",
-      "sectionAnimationUrl": "11_VisitingDoctor"
-    },
-    {
-      "sectionType": "custom",
-      "sectionTitle": "Follow Up",
-      "sectionSummary": "Study investigators may contact you as needed for feedback and further mobile health app development needs if you opt in at the conclusion of the study.",
-      "sectionImage": "rsb_consent_section_recontact",
-      "sectionHtmlContent": "consent_section_html_recontact",
-      "sectionAnimationUrl": "12_Recontact"
     }
   ]
 }

@@ -1,12 +1,12 @@
 {
-  "disease_name": "Asthma",
-  "from_date": "December 2014",
-  "to_date": "January 2015",
+  "disease_name": "PAM",
+  "from_date": "March 2017",
+  "to_date": "May 2017",
   "logo_name": "logo_research_institute",
   "questions": [
     {
-      "title": "Welcome to our ResearchStack study",
-      "details": "This is where you would put more details about your study that you would like the user to see on the first page of the study overview.",
+      "title": "Welcome to our  study",
+      "details": "This is an IOS app using the ResearchKit framework for the Ecological Momentary Assessment using the Photographic Affect Meter (PAM).",
       "show_consent": "yes"
     },
     {
@@ -14,16 +14,8 @@
       "details": "study_overview_about"
     },
     {
-      "title": "How This Study Works",
-      "details": "study_overview_howstudyworks"
-    },
-    {
       "title": "Who is Running This Study",
       "details": "study_overview_whoisrunning"
-    },
-    {
-      "title": "About the App",
-      "details": "study_overview_app"
     }
   ]
 }

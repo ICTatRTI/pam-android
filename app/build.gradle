@@ -14,7 +14,7 @@ android {
         versionName '1.0'
         multiDexEnabled true
 
-        // To configure communications with Bridge Study Manager (https://researchnet.ictedge.org/),
+        // To configure communications with Bridge Study Manager (https://research.sagebridge.org/),
         // create a 'gradle.properties' file in the same directory as this build.gradle and add
         // the needed values, for example studyId="bridge_study_id" to make them available as
         // BuildConfig.STUDY_ID, BuildConfig.STUDY_NAME, etc
@@ -55,7 +55,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile 'org.researchstack:skin:1.0.0.rc3'
-    compile 'com.android.support:appcompat-v7:25.3.0'
+    compile 'com.android.support:appcompat-v7:23.2.1'
     compile 'net.zetetic:android-database-sqlcipher:3.3.1-2@aar'
     apt 'co.touchlab.squeaky:squeaky-processor:0.4.0.0'
     compile 'com.android.support:multidex:1.0.1'

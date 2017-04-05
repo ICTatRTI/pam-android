@@ -14,16 +14,11 @@ import org.researchstack.backbone.storage.file.SimpleFileAccess;
 import org.researchstack.backbone.storage.file.aes.AesProvider;
 import org.rti.rcd.researchstack.bridge.BridgeEncryptedDatabase;
 import org.researchstack.skin.AppPrefs;
-import org.researchstack.skin.DataProvider;
 import org.researchstack.skin.PermissionRequestManager;
-import org.researchstack.skin.ResearchStack;
-import org.researchstack.skin.ResourceManager;
-import org.researchstack.skin.TaskProvider;
-import org.researchstack.skin.UiManager;
 import org.researchstack.skin.notification.NotificationConfig;
 import org.researchstack.skin.notification.SimpleNotificationConfig;
 
-public class SampleResearchStack extends ResearchStack
+public class ResearchStack extends org.researchstack.skin.ResearchStack
 {
 
     @Override
@@ -57,27 +52,27 @@ public class SampleResearchStack extends ResearchStack
     }
 
     @Override
-    protected ResourceManager createResourceManagerImplementation(Context context)
+    protected org.researchstack.skin.ResourceManager createResourceManagerImplementation(Context context)
     {
-        return new SampleResourceManager();
+        return new ResourceManager();
     }
 
     @Override
-    protected UiManager createUiManagerImplementation(Context context)
+    protected org.researchstack.skin.UiManager createUiManagerImplementation(Context context)
     {
-        return new SampleUiManager();
+        return new ApplicationUiManager();
     }
 
     @Override
-    protected DataProvider createDataProviderImplementation(Context context)
+    protected org.researchstack.skin.DataProvider createDataProviderImplementation(Context context)
     {
-        return new SampleDataProvider();
+        return new ApplicationDataProvider();
     }
 
     @Override
-    protected TaskProvider createTaskProviderImplementation(Context context)
+    protected org.researchstack.skin.TaskProvider createTaskProviderImplementation(Context context)
     {
-        return new SampleTaskProvider(context);
+        return new ApplicationTaskProvider(context);
     }
 
     @Override
@@ -89,6 +84,6 @@ public class SampleResearchStack extends ResearchStack
     @Override
     protected PermissionRequestManager createPermissionRequestManagerImplementation(Context context)
     {
-        return new SamplePermissionResultManager();
+        return new PermissionResultManager();
     }
 }

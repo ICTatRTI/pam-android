@@ -3,13 +3,12 @@ import android.content.Context;
 
 import org.researchstack.backbone.ResourcePathManager;
 import org.researchstack.backbone.result.TaskResult;
-import org.rti.rcd.researchstack.bridge.BridgeDataProvider;
-import org.researchstack.skin.ResourceManager;
+import org.rti.rcd.researchstack.researchnet.ResearchNetDataProvider;
 
 
-public class SampleDataProvider extends BridgeDataProvider
+public class ApplicationDataProvider extends ResearchNetDataProvider
 {
-    public SampleDataProvider()
+    public ApplicationDataProvider()
     {
         super();
     }
@@ -23,13 +22,13 @@ public class SampleDataProvider extends BridgeDataProvider
     @Override
     protected ResourcePathManager.Resource getPublicKeyResId()
     {
-        return new SampleResourceManager.PemResource("bridge_key");
+        return new ResourceManager.PemResource("bridge_key");
     }
 
     @Override
     protected ResourcePathManager.Resource getTasksAndSchedules()
     {
-        return ResourceManager.getInstance().getTasksAndSchedules();
+        return org.researchstack.skin.ResourceManager.getInstance().getTasksAndSchedules();
     }
 
     @Override

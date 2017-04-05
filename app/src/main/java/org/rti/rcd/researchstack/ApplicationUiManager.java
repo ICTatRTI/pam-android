@@ -1,16 +1,12 @@
 package org.rti.rcd.researchstack;
 import android.content.Context;
 
-import org.researchstack.backbone.answerformat.AnswerFormat;
-import org.researchstack.backbone.answerformat.ChoiceAnswerFormat;
 import org.researchstack.backbone.answerformat.BooleanAnswerFormat;
-import org.researchstack.backbone.model.Choice;
 import org.researchstack.backbone.result.StepResult;
 import org.researchstack.backbone.step.QuestionStep;
 import org.researchstack.backbone.step.FormStep;
 import org.researchstack.backbone.step.Step;
 import org.researchstack.skin.ActionItem;
-import org.researchstack.skin.UiManager;
 import org.researchstack.skin.task.OnboardingTask;
 import org.researchstack.skin.ui.LearnActivity;
 import org.researchstack.skin.ui.fragment.ActivitiesFragment;
@@ -18,10 +14,8 @@ import org.researchstack.skin.ui.fragment.ActivitiesFragment;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Iterator;
 
-public class SampleUiManager extends UiManager
+public class ApplicationUiManager extends org.researchstack.skin.UiManager
 {
     /**
      * @return List of ActionItems w/ Fragment class items
@@ -65,7 +59,7 @@ public class SampleUiManager extends UiManager
         navItems.add(new ActionItem.ActionItemBuilder().setId(R.id.nav_settings)
                 .setTitle(R.string.rss_settings)
                 .setIcon(R.drawable.rss_ic_action_settings)
-                .setClass(SampleSettingsActivity.class)
+                .setClass(SettingsActivity.class)
                 .build());
 
         return navItems;

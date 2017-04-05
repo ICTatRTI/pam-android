@@ -2,14 +2,13 @@ package org.rti.rcd.researchstack;
 import android.text.TextUtils;
 
 import org.researchstack.backbone.ResourcePathManager;
-import org.researchstack.skin.ResourceManager;
 import org.researchstack.skin.model.ConsentSectionModel;
 import org.researchstack.skin.model.SchedulesAndTasksModel;
 import org.researchstack.skin.model.SectionModel;
 import org.researchstack.skin.model.StudyOverviewModel;
 import org.researchstack.skin.model.TaskModel;
 
-public class SampleResourceManager extends ResourceManager
+public class ResourceManager extends org.researchstack.skin.ResourceManager
 {
     private static final String BASE_PATH_HTML        = "html";
     private static final String BASE_PATH_JSON        = "json";
@@ -140,7 +139,7 @@ public class SampleResourceManager extends ResourceManager
 
         public PemResource(String name)
         {
-            super(SampleResourceManager.PEM, null, name);
+            super(ResourceManager.PEM, null, name);
         }
     }
 }

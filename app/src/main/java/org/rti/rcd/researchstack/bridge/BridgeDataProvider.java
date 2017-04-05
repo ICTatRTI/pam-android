@@ -632,7 +632,7 @@ public abstract class BridgeDataProvider extends DataProvider
         // Update/Create TaskNotificationService
         if(AppPrefs.getInstance(context).isTaskReminderEnabled())
         {
-            Log.i("SampleDataProvider", "uploadTaskResult() _ isTaskReminderEnabled() = true");
+            Log.i("ApplicationDataProvider", "uploadTaskResult() _ isTaskReminderEnabled() = true");
 
             String chronTime = findChronTime(taskResult.getIdentifier());
 
@@ -710,7 +710,7 @@ public abstract class BridgeDataProvider extends DataProvider
 
     private void scheduleReminderNotification(Context context, Date endDate, String chronTime)
     {
-        Log.i("SampleDataProvider", "scheduleReminderNotification()");
+        Log.i("ApplicationDataProvider", "scheduleReminderNotification()");
 
         // Save TaskNotification to DB
         TaskNotification notification = new TaskNotification();

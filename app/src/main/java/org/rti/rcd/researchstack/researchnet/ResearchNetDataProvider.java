@@ -1,4 +1,4 @@
-package org.researchstack.sampleapp.org.rti.rcd;
+package org.rti.rcd.researchstack.researchnet;
 
 import android.content.Context;
 import android.content.Intent;
@@ -36,11 +36,11 @@ import org.rti.rcd.researchstack.bridge.UploadRequest;
 import org.rti.rcd.researchstack.bridge.UploadSession;
 import org.rti.rcd.researchstack.bridge.UploadValidationStatus;
 import org.rti.rcd.researchstack.bridge.UserSessionInfo;
-import org.rti.rcd.researchstack.bridge.BridgeDataProvider;
+
 import org.rti.rcd.researchstack.bridge.body.ConsentSignatureBody;
 import org.rti.rcd.researchstack.bridge.body.EmailBody;
 import org.rti.rcd.researchstack.bridge.body.SharingOptionBody;
-import org.rti.rcd.researchstack.bridge.body.SignInBody;
+import org.rti.rcd.researchstack.researchnet.body.SignInBody;
 import org.rti.rcd.researchstack.bridge.body.SignUpBody;
 import org.rti.rcd.researchstack.bridge.body.SurveyAnswer;
 import org.rti.rcd.researchstack.bridge.body.WithdrawalBody;
@@ -84,16 +84,15 @@ import rx.Observable;
 import rx.schedulers.Schedulers;
 
 /*
-* This is a very simple implementation that hits only part of the Sage Bridge REST API
-* a complete port of the Sage Bridge Java SDK for android: https://github.com/Sage-Bionetworks/BridgeJavaSDK
- */
-public abstract class ResearchnetDataProvider extends DataProvider
+* This is a very simple implementation that hits only part of the ResearchNet REST API
+*/
+public abstract class ResearchNetDataProvider extends DataProvider
 {
     public static final String TEMP_CONSENT_JSON_FILE_NAME = "/consent_sig";
     public static final String USER_SESSION_PATH           = "/user_session";
     public static final String USER_PATH                   = "/user";
 
-    private BridgeDataProvider.BridgeService service;
+    private ResearchNetDataProvider.ResearchnetService service;
     protected UserSessionInfo userSessionInfo;
     protected Gson gson     = new Gson();
     protected boolean signedIn = false;
@@ -112,7 +111,7 @@ public abstract class ResearchnetDataProvider extends DataProvider
     protected abstract String getStudyId();
 
     protected final String getUserAgent() {
-        return getStudyName() + "/" + getAppVersion() + " (" + getDeviceName() + "; Android " + Build.VERSION.RELEASE + ") BridgeSDK/0";
+        return getAppVersion() + " (" + getDeviceName() + "; Android " + Build.VERSION.RELEASE + ") ResearchNetSDK/0";
     }
 
     protected abstract String getStudyName();
@@ -149,7 +148,7 @@ public abstract class ResearchnetDataProvider extends DataProvider
         }
     }
 
-    public ResearchnetDataProvider()
+    public ResearchNetDataProvider()
     {
         buildRetrofitService(null);
     }
@@ -171,7 +170,7 @@ public abstract class ResearchnetDataProvider extends DataProvider
 
             Request request = original.newBuilder()
                     .header("User-Agent", getUserAgent())
-                    .header("Bridge-Session", sessionToken)
+                    .header("ResearchNet-Session", sessionToken)
                     .method(original.method(), original.body())
                     .build();
 
@@ -196,7 +195,7 @@ public abstract class ResearchnetDataProvider extends DataProvider
                 .baseUrl(getBaseUrl())
                 .client(client)
                 .build();
-        service = retrofit.create(BridgeDataProvider.BridgeService.class);
+        service = retrofit.create(ResearchNetDataProvider.ResearchnetService.class);
     }
 
     @Override
@@ -297,7 +296,7 @@ public abstract class ResearchnetDataProvider extends DataProvider
     @Override
     public Observable<DataResponse> signIn(Context context, String username, String password)
     {
-        SignInBody body = new SignInBody(getStudyId(), username, password);
+        SignInBody body = new SignInBody(username, password);
 
         // response 412 still has a response body, so catch all http errors here
         return service.signIn(body).doOnNext(response -> {
@@ -339,14 +338,13 @@ public abstract class ResearchnetDataProvider extends DataProvider
     @Override
     public Observable<DataResponse> signOut(Context context)
     {
-        return service.signOut().map(response -> new DataResponse(response.isSuccess(), null));
+        return null;
     }
 
     @Override
     public Observable<DataResponse> resendEmailVerification(Context context, String email)
     {
-        EmailBody body = new EmailBody(getStudyId(), email);
-        return service.resendEmailVerification(body);
+        return null;
     }
 
     @Override
@@ -642,7 +640,7 @@ public abstract class ResearchnetDataProvider extends DataProvider
         // Update/Create TaskNotificationService
         if(AppPrefs.getInstance(context).isTaskReminderEnabled())
         {
-            Log.i("SampleDataProvider", "uploadTaskResult() _ isTaskReminderEnabled() = true");
+            Log.i("ApplicationDataProvider", "uploadTaskResult() _ isTaskReminderEnabled() = true");
 
             String chronTime = findChronTime(taskResult.getIdentifier());
 
@@ -720,7 +718,7 @@ public abstract class ResearchnetDataProvider extends DataProvider
 
     private void scheduleReminderNotification(Context context, Date endDate, String chronTime)
     {
-        Log.i("SampleDataProvider", "scheduleReminderNotification()");
+        Log.i("ApplicationDataProvider", "scheduleReminderNotification()");
 
         // Save TaskNotification to DB
         TaskNotification notification = new TaskNotification();
@@ -949,7 +947,7 @@ public abstract class ResearchnetDataProvider extends DataProvider
         return new File(context.getFilesDir() + "/upload_request/");
     }
 
-    public interface BridgeService
+    public interface ResearchnetService
     {
 
         /**
@@ -972,7 +970,7 @@ public abstract class ResearchnetDataProvider extends DataProvider
          * </ul>
          */
         @Headers("Content-Type: application/json")
-        @POST("v3/auth/signIn")
+        @POST("api-token-auth/")
         Observable<Response<UserSessionInfo>> signIn(@Body SignInBody body);
 
         @Headers("Content-Type: application/json")

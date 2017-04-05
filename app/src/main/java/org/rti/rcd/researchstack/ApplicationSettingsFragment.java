@@ -4,9 +4,8 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceCategory;
 import android.support.v7.preference.PreferenceScreen;
 
-import org.researchstack.skin.ui.fragment.SettingsFragment;
 
-public class SampleSettingsFragment extends SettingsFragment
+public class ApplicationSettingsFragment extends org.researchstack.skin.ui.fragment.SettingsFragment
 {
     public static final String KEY_EXAMPLE = "Sample.EXAMPLE";
 
@@ -15,7 +14,7 @@ public class SampleSettingsFragment extends SettingsFragment
     {
         super.onCreatePreferences(bundle, s);
 
-        // Get our screen which is created in Skin SettingsFragment
+        // Get our screen which is created in Skin ApplicationSettingsFragment
         PreferenceScreen screen = getPreferenceScreen();
 
         // Get profile preference

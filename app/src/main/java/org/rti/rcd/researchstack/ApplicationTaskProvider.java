@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class SampleTaskProvider extends TaskProvider
+public class ApplicationTaskProvider extends org.researchstack.skin.TaskProvider
 {
     private HashMap<String, Task> map = new HashMap<>();
 
-    public SampleTaskProvider(Context context)
+    public ApplicationTaskProvider(Context context)
     {
         put(TASK_ID_INITIAL, createInitialTask(context));
         put(TASK_ID_CONSENT, ConsentTask.create(context, TASK_ID_CONSENT));

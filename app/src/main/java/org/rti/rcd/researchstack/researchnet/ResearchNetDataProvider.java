@@ -35,13 +35,14 @@ import org.rti.rcd.researchstack.bridge.UploadQueue;
 import org.rti.rcd.researchstack.bridge.UploadRequest;
 import org.rti.rcd.researchstack.bridge.UploadSession;
 import org.rti.rcd.researchstack.bridge.UploadValidationStatus;
-import org.rti.rcd.researchstack.bridge.UserSessionInfo;
+import org.rti.rcd.researchstack.researchnet.UserSessionInfo;
 
 import org.rti.rcd.researchstack.bridge.body.ConsentSignatureBody;
 import org.rti.rcd.researchstack.bridge.body.EmailBody;
 import org.rti.rcd.researchstack.bridge.body.SharingOptionBody;
 import org.rti.rcd.researchstack.researchnet.body.SignInBody;
-import org.rti.rcd.researchstack.bridge.body.SignUpBody;
+import org.rti.rcd.researchstack.researchnet.body.SignUpBody;
+
 import org.rti.rcd.researchstack.bridge.body.SurveyAnswer;
 import org.rti.rcd.researchstack.bridge.body.WithdrawalBody;
 import org.researchstack.skin.AppPrefs;

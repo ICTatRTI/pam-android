@@ -11,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        applicationId 'org.researchstack.sampleapp'
+        applicationId 'org.rti.rcd.researchstack'
         minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
@@ -58,7 +58,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'org.researchstack:skin:1.0.0.rc3'
+    compile 'org.researchstack:skin:1.1.1'
     compile 'com.android.support:appcompat-v7:23.2.1'
     compile 'net.zetetic:android-database-sqlcipher:3.5.6'
     apt 'co.touchlab.squeaky:squeaky-processor:0.4.0.0'

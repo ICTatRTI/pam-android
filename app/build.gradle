@@ -51,7 +51,7 @@ android {
     }
 
     dexOptions {
-        javaMaxHeapSize '4g' //specify the heap size for the dex process
+        javaMaxHeapSize '2g' //specify the heap size for the dex process
     }
 }
 

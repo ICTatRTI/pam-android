@@ -24,8 +24,9 @@ android {
         // BuildConfig.STUDY_ID, BuildConfig.STUDY_NAME, etc
         buildConfigField 'String', 'STUDY_ID', studyId
         buildConfigField 'String', 'STUDY_NAME', studyName
-        buildConfigField 'String', 'STUDY_SUBPOPULATION_GUID', studyId // default subpopulation
+        buildConfigField 'String', 'STUDY_SUBPOPULATION_GUID', studyId
         buildConfigField 'String', 'STUDY_BASE_URL', "\"https://researchnet.ictedge.org/\""
+        buildConfigField 'String', 'RESEARCHNET_APP_KEY', "\"9a1194980e9e15da451d9ab68a5b8801e6704c18\""
     }
     buildTypes {
         release {

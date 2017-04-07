@@ -18,15 +18,14 @@ android {
         versionName '1.0'
         multiDexEnabled true
 
-        // To configure communications with Bridge Study Manager (https://research.sagebridge.org/),
+        // To configure communications with a Study Manager (https://researchnet.ictedge.org/),
         // create a 'gradle.properties' file in the same directory as this build.gradle and add
-        // the needed values, for example studyId="bridge_study_id" to make them available as
-        // BuildConfig.STUDY_ID, BuildConfig.STUDY_NAME, etc
+
         buildConfigField 'String', 'STUDY_ID', studyId
         buildConfigField 'String', 'STUDY_NAME', studyName
         buildConfigField 'String', 'STUDY_SUBPOPULATION_GUID', studyId
-        buildConfigField 'String', 'STUDY_BASE_URL', "\"https://researchnet.ictedge.org/\""
-        buildConfigField 'String', 'RESEARCHNET_APP_KEY', "\"9a1194980e9e15da451d9ab68a5b8801e6704c18\""
+        buildConfigField 'String', 'STUDY_BASE_URL', studyUrl
+        buildConfigField 'String', 'RESEARCHNET_APP_KEY', researchnetAppKey
     }
     buildTypes {
         release {
@@ -53,6 +52,15 @@ android {
 
     dexOptions {
         javaMaxHeapSize '2g' //specify the heap size for the dex process
+    }
+}
+
+task printProperties {
+    doLast {
+        println studyId
+        println studyName
+        println studyUrl
+        println researchnetAppKey
     }
 }
 

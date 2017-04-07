@@ -20,12 +20,6 @@ public class ApplicationDataProvider extends ResearchNetDataProvider
     }
 
     @Override
-    protected ResourcePathManager.Resource getPublicKeyResId()
-    {
-        return new ResourceManager.PemResource("bridge_key");
-    }
-
-    @Override
     protected ResourcePathManager.Resource getTasksAndSchedules()
     {
         return org.researchstack.skin.ResourceManager.getInstance().getTasksAndSchedules();

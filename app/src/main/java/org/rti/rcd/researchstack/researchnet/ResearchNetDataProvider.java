@@ -26,25 +26,6 @@ import org.researchstack.backbone.ui.step.layout.ConsentSignatureStepLayout;
 import org.researchstack.backbone.utils.FormatHelper;
 import org.researchstack.backbone.utils.LogExt;
 import org.researchstack.backbone.utils.ObservableUtils;
-import org.rti.rcd.researchstack.BuildConfig;
-import org.rti.rcd.researchstack.bridge.BridgeDataArchive;
-import org.rti.rcd.researchstack.bridge.BridgeDataInput;
-import org.rti.rcd.researchstack.bridge.BridgeMessageResponse;
-import org.rti.rcd.researchstack.bridge.Info;
-import org.rti.rcd.researchstack.bridge.UploadQueue;
-import org.rti.rcd.researchstack.bridge.UploadRequest;
-import org.rti.rcd.researchstack.bridge.UploadSession;
-import org.rti.rcd.researchstack.bridge.UploadValidationStatus;
-import org.rti.rcd.researchstack.researchnet.UserSessionInfo;
-
-import org.rti.rcd.researchstack.bridge.body.ConsentSignatureBody;
-import org.rti.rcd.researchstack.bridge.body.EmailBody;
-import org.rti.rcd.researchstack.bridge.body.SharingOptionBody;
-import org.rti.rcd.researchstack.researchnet.body.SignInBody;
-import org.rti.rcd.researchstack.researchnet.body.SignUpBody;
-
-import org.rti.rcd.researchstack.bridge.body.SurveyAnswer;
-import org.rti.rcd.researchstack.bridge.body.WithdrawalBody;
 import org.researchstack.skin.AppPrefs;
 import org.researchstack.skin.DataProvider;
 import org.researchstack.skin.DataResponse;
@@ -56,6 +37,21 @@ import org.researchstack.skin.notification.TaskAlertReceiver;
 import org.researchstack.skin.schedule.ScheduleHelper;
 import org.researchstack.skin.task.ConsentTask;
 import org.researchstack.skin.task.SmartSurveyTask;
+import org.rti.rcd.researchstack.BuildConfig;
+import org.rti.rcd.researchstack.bridge.BridgeDataInput;
+import org.rti.rcd.researchstack.bridge.BridgeMessageResponse;
+import org.rti.rcd.researchstack.bridge.Info;
+import org.rti.rcd.researchstack.bridge.UploadQueue;
+import org.rti.rcd.researchstack.bridge.UploadRequest;
+import org.rti.rcd.researchstack.bridge.UploadSession;
+import org.rti.rcd.researchstack.bridge.UploadValidationStatus;
+import org.rti.rcd.researchstack.bridge.body.ConsentSignatureBody;
+import org.rti.rcd.researchstack.bridge.body.EmailBody;
+import org.rti.rcd.researchstack.bridge.body.SharingOptionBody;
+import org.rti.rcd.researchstack.bridge.body.SurveyAnswer;
+import org.rti.rcd.researchstack.bridge.body.WithdrawalBody;
+import org.rti.rcd.researchstack.researchnet.body.SignInBody;
+import org.rti.rcd.researchstack.researchnet.body.SignUpBody;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,8 +98,6 @@ public abstract class ResearchNetDataProvider extends DataProvider
     private Map<String, String> loadedTaskGuids = new HashMap<>();
     private Map<String, String> loadedTaskDates = new HashMap<>();
     private Map<String, String> loadedTaskCrons = new HashMap<>();
-
-    protected abstract ResourcePathManager.Resource getPublicKeyResId();
 
     protected abstract ResourcePathManager.Resource getTasksAndSchedules();
 
@@ -678,27 +672,8 @@ public abstract class ResearchNetDataProvider extends DataProvider
 
     public void uploadBridgeData(Context context, Info info, List<BridgeDataInput> dataFiles)
     {
-        try
-        {
-            BridgeDataArchive archive = new BridgeDataArchive(info);
-            archive.start(getFilesDir(context));
-
-            for(BridgeDataInput dataFile : dataFiles)
-            {
-                archive.addFile(context, dataFile);
-            }
-
-            UploadRequest request = archive.finishAndEncrypt(context,
-                    getPublicKeyResId(),
-                    getFilesDir(context));
-
-            ((UploadQueue) StorageAccess.getInstance().getAppDatabase()).saveUploadRequest(request);
-            uploadPendingFiles(context);
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException("Error encrypting initial task data", e);
-        }
+        //TODO to implement using a researchnet API
+        return;
     }
 
     // these stink, I should be able to query the DB and find these

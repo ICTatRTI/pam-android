@@ -194,6 +194,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
             // will crash if the user hasn't created a pincode yet, need to fix needsAuth()
             if(StorageAccess.getInstance().hasPinCode(context))
             {
+                LogExt.e(getClass(), "do on next");
                 // do nothing
             }
         });
@@ -380,7 +381,11 @@ public abstract class ResearchNetDataProvider extends DataProvider
     @Override
     public void setUserSharingScope(Context context, String scope)
     {
-        // TODO not doing a full consent for now
+
+        // This is stubbed out. //TODO Hook this up to the /consent api call
+        userSessionInfo.setSharingScope(scope);
+        saveUserSession(context, userSessionInfo);
+
     }
 
     private ConsentSignatureBody loadConsentSignatureBody(Context context)

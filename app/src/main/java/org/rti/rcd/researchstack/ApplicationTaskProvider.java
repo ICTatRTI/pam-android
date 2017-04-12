@@ -4,7 +4,6 @@ import android.content.Context;
 import org.researchstack.backbone.answerformat.AnswerFormat;
 import org.researchstack.backbone.answerformat.BooleanAnswerFormat;
 import org.researchstack.backbone.answerformat.ChoiceAnswerFormat;
-import org.researchstack.backbone.answerformat.DateAnswerFormat;
 import org.researchstack.backbone.answerformat.IntegerAnswerFormat;
 import org.researchstack.backbone.model.Choice;
 import org.researchstack.backbone.step.FormStep;
@@ -13,7 +12,6 @@ import org.researchstack.backbone.step.QuestionStep;
 import org.researchstack.backbone.step.Step;
 import org.researchstack.backbone.task.OrderedTask;
 import org.researchstack.backbone.task.Task;
-import org.researchstack.skin.TaskProvider;
 import org.researchstack.skin.task.ConsentTask;
 import org.researchstack.skin.task.SignInTask;
 import org.researchstack.skin.task.SignUpTask;
@@ -68,11 +66,6 @@ public class ApplicationTaskProvider extends org.researchstack.skin.TaskProvider
         FormStep basicInfoForm = new FormStep("basicInfo", "About You", "");
         basicInfoForm.setStepTitle(R.string.task_inital_toolbar_title);
 
-        // Date of Birth
-        DateAnswerFormat dateOfBirthFormat = new DateAnswerFormat(AnswerFormat.DateAnswerStyle.Date);
-        QuestionStep dateOfBirthStep = new QuestionStep("dateOfBirth",
-                "Date of Birth",
-                dateOfBirthFormat);
 
         // Gender
         AnswerFormat genderFormat = new ChoiceAnswerFormat(AnswerFormat.ChoiceAnswerStyle.SingleChoice,
@@ -89,7 +82,7 @@ public class ApplicationTaskProvider extends org.researchstack.skin.TaskProvider
 
         // Set items on FormStep
         basicInfoForm.setOptional(true);
-        basicInfoForm.setFormSteps(dateOfBirthStep, genderStep, zipCodeStep);
+        basicInfoForm.setFormSteps(genderStep, zipCodeStep);
 
         // Add to Task
         steps.add(basicInfoForm);

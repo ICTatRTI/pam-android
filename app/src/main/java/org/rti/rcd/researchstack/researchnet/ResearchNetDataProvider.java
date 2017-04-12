@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -19,13 +18,11 @@ import org.researchstack.backbone.result.TaskResult;
 import org.researchstack.backbone.storage.NotificationHelper;
 import org.researchstack.backbone.storage.database.AppDatabase;
 import org.researchstack.backbone.storage.database.TaskNotification;
-import org.researchstack.backbone.storage.file.FileAccess;
 import org.researchstack.backbone.storage.file.StorageAccessException;
 import org.researchstack.backbone.task.Task;
 import org.researchstack.backbone.ui.step.layout.ConsentSignatureStepLayout;
 import org.researchstack.backbone.utils.FormatHelper;
 import org.researchstack.backbone.utils.LogExt;
-import org.researchstack.backbone.utils.ObservableUtils;
 import org.researchstack.skin.AppPrefs;
 import org.researchstack.skin.DataProvider;
 import org.researchstack.skin.DataResponse;
@@ -41,15 +38,8 @@ import org.rti.rcd.researchstack.BuildConfig;
 import org.rti.rcd.researchstack.bridge.BridgeDataInput;
 import org.rti.rcd.researchstack.bridge.BridgeMessageResponse;
 import org.rti.rcd.researchstack.bridge.Info;
-import org.rti.rcd.researchstack.bridge.UploadQueue;
-import org.rti.rcd.researchstack.bridge.UploadRequest;
-import org.rti.rcd.researchstack.bridge.UploadSession;
-import org.rti.rcd.researchstack.bridge.UploadValidationStatus;
 import org.rti.rcd.researchstack.bridge.body.ConsentSignatureBody;
-import org.rti.rcd.researchstack.bridge.body.EmailBody;
-import org.rti.rcd.researchstack.bridge.body.SharingOptionBody;
 import org.rti.rcd.researchstack.bridge.body.SurveyAnswer;
-import org.rti.rcd.researchstack.bridge.body.WithdrawalBody;
 import org.rti.rcd.researchstack.researchnet.body.SignInBody;
 import org.rti.rcd.researchstack.researchnet.body.SignUpBody;
 
@@ -63,22 +53,17 @@ import java.util.List;
 import java.util.Map;
 
 import okhttp3.Interceptor;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.GsonConverterFactory;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.RxJavaCallAdapterFactory;
 import retrofit2.http.Body;
-import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
-import retrofit2.http.Path;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 /*
 * This is a very simple implementation that hits only part of the ResearchNet REST API
@@ -167,7 +152,6 @@ public abstract class ResearchNetDataProvider extends DataProvider
 
             Request request = original.newBuilder()
                     .header("User-Agent", getUserAgent())
-                    .header("ResearchNet-Session", sessionToken)
                     .header("Authorization", "Token "+getReearchnetAppKey())
                     .method(original.method(), original.body())
                     .build();
@@ -210,30 +194,11 @@ public abstract class ResearchNetDataProvider extends DataProvider
             // will crash if the user hasn't created a pincode yet, need to fix needsAuth()
             if(StorageAccess.getInstance().hasPinCode(context))
             {
-                checkForTempConsentAndUpload(context);
-                uploadPendingFiles(context);
+                // do nothing
             }
         });
     }
 
-    private void checkForTempConsentAndUpload(Context context)
-    {
-        // If we are signed in, not consented on the server, but consented locally, upload consent
-        if(isSignedIn(context) && ! userSessionInfo.isConsented() && StorageAccess.getInstance()
-                .getFileAccess()
-                .dataExists(context, TEMP_CONSENT_JSON_FILE_NAME))
-        {
-            try
-            {
-                ConsentSignatureBody consent = loadConsentSignatureBody(context);
-                uploadConsent(context, BuildConfig.STUDY_SUBPOPULATION_GUID, consent);
-            }
-            catch(Exception e)
-            {
-                throw new RuntimeException("Error loading consent", e);
-            }
-        }
-    }
 
     /**
      * @param context
@@ -250,21 +215,8 @@ public abstract class ResearchNetDataProvider extends DataProvider
     @Override
     public Observable<DataResponse> withdrawConsent(Context context, String reason)
     {
-        return service.withdrawConsent(getStudyId(), new WithdrawalBody(reason))
-                .compose(ObservableUtils.applyDefault())
-                .doOnNext(response -> {
-                    if(response.isSuccess())
-                    {
-                        userSessionInfo.setConsented(false);
-                        saveUserSession(context, userSessionInfo);
-                        buildRetrofitService(userSessionInfo);
-                    }
-                    else
-                    {
-                        handleError(context, response.code());
-                    }
-                })
-                .map(response -> new DataResponse(response.isSuccess(), response.message()));
+       //TODO implement later
+        return null;
     }
 
     @Override
@@ -332,8 +284,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
                 signedIn = true;
                 saveUserSession(context, userSessionInfo);
                 buildRetrofitService(userSessionInfo);
-                checkForTempConsentAndUpload(context);
-                uploadPendingFiles(context);
+
             }
         }).map(response -> {
             boolean success = response.isSuccess() || response.code() == 412;
@@ -365,6 +316,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
     {
         return signedIn;
     }
+
 
     @Override
     public void saveConsent(Context context, TaskResult consentResult)
@@ -428,25 +380,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
     @Override
     public void setUserSharingScope(Context context, String scope)
     {
-        // Update scope on server
-        service.dataSharing(new SharingOptionBody(scope))
-                .compose(ObservableUtils.applyDefault())
-                .doOnNext(response -> {
-                    if(response.isSuccess())
-                    {
-                        userSessionInfo.setSharingScope(scope);
-                        saveUserSession(context, userSessionInfo);
-                    }
-                    else
-                    {
-                        handleError(context, response.code());
-                    }
-                })
-                .subscribe(response -> LogExt.d(getClass(),
-                        "Response: " + response.code() + ", message: " +
-                                response.message()), error -> {
-                    LogExt.e(getClass(), error.getMessage());
-                });
+        // TODO not doing a full consent for now
     }
 
     private ConsentSignatureBody loadConsentSignatureBody(Context context)
@@ -458,37 +392,9 @@ public abstract class ResearchNetDataProvider extends DataProvider
     @Override
     public void uploadConsent(Context context, TaskResult consentResult)
     {
-        uploadConsent(context, BuildConfig.STUDY_SUBPOPULATION_GUID, createConsentSignatureBody(consentResult));
+        //TODO Doing nothing just like my old roommate.
     }
 
-    private void uploadConsent(Context context, String subpopulationGuid, ConsentSignatureBody consent)
-    {
-        service.consentSignature(subpopulationGuid, consent)
-                .compose(ObservableUtils.applyDefault())
-                .subscribe(response -> {
-                    if(response.code() == 201 ||
-                            response.code() == 409) // success or already consented
-                    {
-                        userSessionInfo.setConsented(true);
-                        saveUserSession(context, userSessionInfo);
-
-                        LogExt.d(getClass(), "Response: " + response.code() + ", message: " +
-                                response.message());
-
-                        FileAccess fileAccess = StorageAccess.getInstance().getFileAccess();
-                        if(fileAccess.dataExists(context, TEMP_CONSENT_JSON_FILE_NAME))
-                        {
-                            fileAccess.clearData(context, TEMP_CONSENT_JSON_FILE_NAME);
-                        }
-                    }
-                    else
-                    {
-                        throw new RuntimeException(
-                                "Error uploading consent, code: " + response.code() + " message: " +
-                                        response.message());
-                    }
-                });
-    }
 
     @Override
     public String getUserEmail(Context context)
@@ -500,16 +406,8 @@ public abstract class ResearchNetDataProvider extends DataProvider
     @Override
     public Observable<DataResponse> forgotPassword(Context context, String email)
     {
-        return service.requestResetPassword(new EmailBody(getStudyId(), email)).map(response -> {
-            if(response.isSuccess())
-            {
-                return new DataResponse(true, response.body().getMessage());
-            }
-            else
-            {
-                return new DataResponse(false, response.message());
-            }
-        });
+        // TODO forgot password isn't implemented yet
+        return null;
     }
 
     private void saveUserSession(Context context, UserSessionInfo userInfo)
@@ -523,8 +421,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
         try
         {
             String user = loadJsonString(context, USER_PATH);
-            ResearchNetUser u = gson.fromJson(user, ResearchNetUser.class);
-            return u;
+            return gson.fromJson(user, ResearchNetUser.class);
         }
         catch(StorageAccessException e)
         {
@@ -723,157 +620,6 @@ public abstract class ResearchNetDataProvider extends DataProvider
     @Override
     public abstract void processInitialTaskResult(Context context, TaskResult taskResult);
 
-    public void uploadPendingFiles(Context context)
-    {
-        List<UploadRequest> uploadRequests = ((UploadQueue) StorageAccess.getInstance()
-                .getAppDatabase()).loadUploadRequests();
-
-        // There is an issue here, being that this will loop through the upload requests and upload
-        // a zip async. The service cannot handle more than two async calls so any other requested
-        // async calls fail due to SockTimeoutException
-        for(UploadRequest uploadRequest : uploadRequests)
-        {
-            if(uploadRequest.bridgeId == null)
-            {
-                LogExt.d(getClass(), "Starting upload for request: " + uploadRequest.name);
-                uploadFile(context, uploadRequest);
-            }
-            else
-            {
-                LogExt.d(getClass(),
-                        "Bridge ID found, confirming upload for: " + uploadRequest.name);
-                confirmUpload(context, uploadRequest);
-            }
-        }
-    }
-
-    protected void uploadFile(Context context, UploadRequest request)
-    {
-        service.requestUploadSession(request).flatMap(response -> {
-            if(response.isSuccess())
-            {
-                return uploadToS3(context, request, response.body());
-            }
-            else
-            {
-                handleError(context, response.code());
-                throw new RuntimeException(response.message());
-            }
-        }).flatMap(id -> {
-            LogExt.d(getClass(), "Notifying bridge of s3 upload: " + id);
-
-            // Updating request entry with Bridge ID for saving on success
-            request.bridgeId = id;
-
-            return service.uploadComplete(id);
-        }).subscribeOn(Schedulers.io()).subscribe(completeResponse -> {
-            if(completeResponse.isSuccess())
-            {
-                LogExt.d(getClass(), "Notified bridge of s3 upload, need to confirm");
-                // update UploadRequest in DB with id for later confirmation
-                ((UploadQueue) StorageAccess.getInstance().getAppDatabase()).saveUploadRequest(
-                        request);
-            }
-            else
-            {
-                handleError(context, completeResponse.code());
-            }
-        }, error -> {
-            error.printStackTrace();
-            LogExt.e(getClass(), "Error uploading file to S3, will try again");
-        });
-    }
-
-    @NonNull
-    private Observable<String> uploadToS3(Context context, UploadRequest request, UploadSession uploadSession)
-    {
-        // retrofit doesn't like making requests outside of your api, use okhttp to make the call
-        return Observable.create(subscriber -> {
-            // Request will fail without Content-MD5, Content-Type, and Content-Length
-            LogExt.d(getClass(), "Uploading to S3");
-            RequestBody body = RequestBody.create(MediaType.parse(request.contentType),
-                    new File(getFilesDir(context), request.name));
-            Request awsRequest = new Request.Builder().url(uploadSession.url)
-                    .put(body)
-                    .header("Content-MD5", request.contentMd5)
-                    .build();
-
-            okhttp3.Response response = null;
-            try
-            {
-                response = new OkHttpClient().newCall(awsRequest).execute();
-
-                if(response.isSuccessful())
-                {
-                    LogExt.d(getClass(), "Successful s3 upload");
-                    subscriber.onNext(uploadSession.id);
-                }
-                else
-                {
-                    handleError(context, response.code());
-                    throw new RuntimeException("Response unsuccessful, code: " + response.code());
-                }
-            }
-            catch(IOException e)
-            {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    private void confirmUpload(Context context, UploadRequest request)
-    {
-        service.uploadStatus(request.bridgeId).subscribeOn(Schedulers.io()).subscribe(response -> {
-            if(response.isSuccess())
-            {
-                UploadValidationStatus uploadStatus = response.body();
-
-                LogExt.d(getClass(), "Received validation status from ResearchNet(" +
-                        uploadStatus.getStatus() + ")");
-
-                switch(uploadStatus.getStatus())
-                {
-                    case UNKNOWN:
-                    case VALIDATION_FAILED:
-                        String errorText = "ERROR: ResearchNet validation of file upload failed for: " +
-                                request.name;
-                        Toast.makeText(context, errorText, Toast.LENGTH_SHORT).show();
-                        LogExt.e(getClass(), errorText);
-                        // figure out what to actually do on unrecoverable, from a user perspective
-                        deleteUploadRequest(context, request);
-                        break;
-
-                    case REQUESTED:
-                        LogExt.e(getClass(),
-                                "Status is still 'requested' for some reason, will retry upload later");
-                        // removing bridge id so upload is retried later
-                        request.bridgeId = null;
-                        ((UploadQueue) StorageAccess.getInstance()
-                                .getAppDatabase()).saveUploadRequest(request);
-                        break;
-
-                    case SUCCEEDED:
-                        LogExt.d(getClass(), "Status is 'success', removing request locally");
-                        deleteUploadRequest(context, request);
-                        break;
-
-                    case VALIDATION_IN_PROGRESS:
-                    default:
-                        LogExt.d(getClass(), "Status is pending, will retry confirmation later");
-                        // No action necessary
-                        break;
-                }
-            }
-            else
-            {
-                handleError(context, response.code());
-            }
-
-        }, error -> {
-            error.printStackTrace();
-            LogExt.e(getClass(), "Error connecting to Bridge server, will try again later");
-        });
-    }
 
     /**
      * 400	BadRequestException	            variable
@@ -914,21 +660,6 @@ public abstract class ResearchNetDataProvider extends DataProvider
         }
     }
 
-    private void deleteUploadRequest(Context context, UploadRequest request)
-    {
-        ((UploadQueue) StorageAccess.getInstance().getAppDatabase()).deleteUploadRequest(request);
-
-        File file = new File(getFilesDir(context), request.name);
-        if(file.exists() && file.delete())
-        {
-            LogExt.d(getClass(), "Deleted file: " + file.getName());
-        }
-        else
-        {
-            LogExt.d(getClass(), "Could not delete file: " + request.name);
-        }
-    }
-
     // figure out what directory to save files in and where to put this method
     public static File getFilesDir(Context context)
     {
@@ -961,50 +692,10 @@ public abstract class ResearchNetDataProvider extends DataProvider
         @POST("api-token-auth/")
         Observable<Response<UserSessionInfo>> signIn(@Body SignInBody body);
 
-        @Headers("Content-Type: application/json")
-        @POST("v3/subpopulations/{subpopulationGuid}/consents/signature")
-        Observable<Response<BridgeMessageResponse>> consentSignature(@Path("subpopulationGuid") String subpopulationGuid,
-                                                                     @Body ConsentSignatureBody body);
-
-        /**
-         * @return Response code <b>200</b> w/ message explaining instructions on how the user should
-         * proceed
-         */
-        @Headers("Content-Type: application/json")
-        @POST("v3/auth/requestResetPassword")
-        Observable<Response<BridgeMessageResponse>> requestResetPassword(@Body EmailBody body);
 
 
-        @POST("v3/subpopulations/{subpopulationGuid}/consents/signature/withdraw")
-        Observable<Response<BridgeMessageResponse>> withdrawConsent(@Path("subpopulationGuid") String subpopulationGuid,
-                                                                    @Body WithdrawalBody withdrawal);
 
-        /**
-         * @return Response code <b>200</b> w/ message explaining instructions on how the user should
-         * proceed
-         */
-        @Headers("Content-Type: application/json")
-        @POST("v3/auth/resendEmailVerification")
-        Observable<DataResponse> resendEmailVerification(@Body EmailBody body);
 
-        /**
-         * @return Response code 200 w/ message telling user has been signed out
-         */
-        @POST("v3/auth/signOut")
-        Observable<Response> signOut();
-
-        @POST("v3/users/self/dataSharing")
-        Observable<Response<BridgeMessageResponse>> dataSharing(@Body SharingOptionBody body);
-
-        @Headers("Content-Type: application/json")
-        @POST("v3/uploads")
-        Observable<Response<UploadSession>> requestUploadSession(@Body UploadRequest body);
-
-        @POST("v3/uploads/{id}/complete")
-        Observable<Response<BridgeMessageResponse>> uploadComplete(@Path("id") String id);
-
-        @GET("v3/uploadstatuses/{id}")
-        Observable<Response<UploadValidationStatus>> uploadStatus(@Path("id") String id);
     }
 
 }

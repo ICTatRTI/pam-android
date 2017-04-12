@@ -113,6 +113,8 @@ public abstract class ResearchNetDataProvider extends DataProvider
 
     protected abstract int getAppVersion();
 
+    protected abstract String getReearchnetAppKey();
+
     private String getDeviceName() {
         String manufacturer = Build.MANUFACTURER;
         if (TextUtils.isEmpty(manufacturer)){
@@ -166,6 +168,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
             Request request = original.newBuilder()
                     .header("User-Agent", getUserAgent())
                     .header("ResearchNet-Session", sessionToken)
+                    .header("Authorization", "Token "+getReearchnetAppKey())
                     .method(original.method(), original.body())
                     .build();
 
@@ -272,11 +275,19 @@ public abstract class ResearchNetDataProvider extends DataProvider
 
         // saving email to user object should exist elsewhere.
         // Save email to user object.
-        User user = loadUser(context);
+        ResearchNetUser user = loadUser(context);
         if(user == null)
         {
-            user = new User();
+            user = new ResearchNetUser();
         }
+
+        body.setFirstNameFromName(user.getName());
+        body.setLastNameFromName(user.getName());
+        body.setGender("male"); //TODO need to update layout to include this variable
+        body.setUsername(email);
+        body.setDob(user.getBirthDate());
+
+
         user.setEmail(email);
         saveUser(context, user);
 
@@ -361,10 +372,10 @@ public abstract class ResearchNetDataProvider extends DataProvider
         ConsentSignatureBody signature = createConsentSignatureBody(consentResult);
         writeJsonString(context, gson.toJson(signature), TEMP_CONSENT_JSON_FILE_NAME);
 
-        User user = loadUser(context);
+        ResearchNetUser user = loadUser(context);
         if(user == null)
         {
-            user = new User();
+            user = new ResearchNetUser();
         }
         user.setName(signature.name);
         user.setBirthDate(signature.birthdate);
@@ -507,12 +518,13 @@ public abstract class ResearchNetDataProvider extends DataProvider
         writeJsonString(context, userSessionJson, USER_SESSION_PATH);
     }
 
-    private User loadUser(Context context)
+    private ResearchNetUser loadUser(Context context)
     {
         try
         {
             String user = loadJsonString(context, USER_PATH);
-            return gson.fromJson(user, User.class);
+            ResearchNetUser u = gson.fromJson(user, ResearchNetUser.class);
+            return u;
         }
         catch(StorageAccessException e)
         {
@@ -520,7 +532,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
         }
     }
 
-    private void saveUser(Context context, User profile)
+    private void saveUser(Context context, ResearchNetUser profile)
     {
         writeJsonString(context, gson.toJson(profile), USER_PATH);
     }
@@ -816,14 +828,14 @@ public abstract class ResearchNetDataProvider extends DataProvider
             {
                 UploadValidationStatus uploadStatus = response.body();
 
-                LogExt.d(getClass(), "Received validation status from Bridge(" +
+                LogExt.d(getClass(), "Received validation status from ResearchNet(" +
                         uploadStatus.getStatus() + ")");
 
                 switch(uploadStatus.getStatus())
                 {
                     case UNKNOWN:
                     case VALIDATION_FAILED:
-                        String errorText = "ERROR: Bridge validation of file upload failed for: " +
+                        String errorText = "ERROR: ResearchNet validation of file upload failed for: " +
                                 request.name;
                         Toast.makeText(context, errorText, Toast.LENGTH_SHORT).show();
                         LogExt.e(getClass(), errorText);
@@ -934,7 +946,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
          * </ul>
          */
         @Headers("Content-Type: application/json")
-        @POST("v3/auth/signUp")
+        @POST("participant/")
         Observable<BridgeMessageResponse> signUp(@Body SignUpBody body);
 
         /**

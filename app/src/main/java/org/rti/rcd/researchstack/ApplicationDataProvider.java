@@ -47,4 +47,9 @@ public class ApplicationDataProvider extends ResearchNetDataProvider
         return BuildConfig.VERSION_CODE;
     }
 
+    @Override
+    protected String getReearchnetAppKey() {
+        return BuildConfig.RESEARCHNET_APP_KEY;
+    }
+
 }

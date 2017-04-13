@@ -71,4 +71,8 @@ public class SubmissionBody {
     public void setLongitude(String longitude) {
         this.longitude = longitude;
     }
+
+    public void addResponse(String key, String value){
+        response.put(key,value);
+    }
 }

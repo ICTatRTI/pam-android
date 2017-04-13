@@ -1,9 +1,16 @@
 package org.rti.rcd.researchstack.researchnet;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
+import android.os.Bundle;
+import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,7 +28,6 @@ import org.researchstack.backbone.storage.database.TaskNotification;
 import org.researchstack.backbone.storage.file.StorageAccessException;
 import org.researchstack.backbone.task.Task;
 import org.researchstack.backbone.ui.step.layout.ConsentSignatureStepLayout;
-import org.researchstack.backbone.utils.FormatHelper;
 import org.researchstack.backbone.utils.LogExt;
 import org.researchstack.skin.AppPrefs;
 import org.researchstack.skin.DataProvider;
@@ -35,18 +41,16 @@ import org.researchstack.skin.schedule.ScheduleHelper;
 import org.researchstack.skin.task.ConsentTask;
 import org.researchstack.skin.task.SmartSurveyTask;
 import org.rti.rcd.researchstack.BuildConfig;
-import org.rti.rcd.researchstack.bridge.BridgeDataInput;
-import org.rti.rcd.researchstack.bridge.BridgeMessageResponse;
-import org.rti.rcd.researchstack.bridge.Info;
 import org.rti.rcd.researchstack.bridge.body.ConsentSignatureBody;
-import org.rti.rcd.researchstack.bridge.body.SurveyAnswer;
 import org.rti.rcd.researchstack.researchnet.body.SignInBody;
 import org.rti.rcd.researchstack.researchnet.body.SignUpBody;
+import org.rti.rcd.researchstack.researchnet.body.SubmissionBody;
+import org.rti.rcd.researchstack.researchnet.body.SurveyAnswer;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -68,15 +72,14 @@ import rx.Observable;
 /*
 * This is a very simple implementation that hits only part of the ResearchNet REST API
 */
-public abstract class ResearchNetDataProvider extends DataProvider
-{
+public abstract class ResearchNetDataProvider extends DataProvider {
     public static final String TEMP_CONSENT_JSON_FILE_NAME = "/consent_sig";
-    public static final String USER_SESSION_PATH           = "/user_session";
-    public static final String USER_PATH                   = "/user";
+    public static final String USER_SESSION_PATH = "/user_session";
+    public static final String USER_PATH = "/user";
 
     private ResearchNetDataProvider.ResearchnetService service;
     protected UserSessionInfo userSessionInfo;
-    protected Gson gson     = new Gson();
+    protected Gson gson = new Gson();
     protected boolean signedIn = false;
 
     // these are used to get task/step guids without rereading the json files and iterating through
@@ -100,14 +103,17 @@ public abstract class ResearchNetDataProvider extends DataProvider
 
     protected abstract String getReearchnetAppKey();
 
+    private Double longitude = new Double(0.0);
+    private Double latitude = new Double(0.0);
+
     private String getDeviceName() {
         String manufacturer = Build.MANUFACTURER;
-        if (TextUtils.isEmpty(manufacturer)){
+        if (TextUtils.isEmpty(manufacturer)) {
             manufacturer = "Unknown";
         }
 
         String model = Build.MODEL;
-        if(TextUtils.isEmpty(model)){
+        if (TextUtils.isEmpty(model)) {
             model = "Android";
         }
 
@@ -130,20 +136,13 @@ public abstract class ResearchNetDataProvider extends DataProvider
         }
     }
 
-    public ResearchNetDataProvider()
-    {
-        buildRetrofitService(null);
-    }
+    public ResearchNetDataProvider() { buildRetrofitService(null);}
 
-    private void buildRetrofitService(UserSessionInfo userSessionInfo)
-    {
+    private void buildRetrofitService(UserSessionInfo userSessionInfo) {
         final String sessionToken;
-        if(userSessionInfo != null)
-        {
+        if (userSessionInfo != null) {
             sessionToken = userSessionInfo.getSessionToken();
-        }
-        else
-        {
+        } else {
             sessionToken = "";
         }
 
@@ -152,7 +151,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
 
             Request request = original.newBuilder()
                     .header("User-Agent", getUserAgent())
-                    .header("Authorization", "Token "+getReearchnetAppKey())
+                    .header("Authorization", "Token " + getReearchnetAppKey())
                     .method(original.method(), original.body())
                     .build();
 
@@ -161,8 +160,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
 
         OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder().addInterceptor(headerInterceptor);
 
-        if (BuildConfig.DEBUG)
-        {
+        if (BuildConfig.DEBUG) {
             HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(message -> LogExt.i(
                     getClass(),
                     message));
@@ -180,9 +178,35 @@ public abstract class ResearchNetDataProvider extends DataProvider
         service = retrofit.create(ResearchNetDataProvider.ResearchnetService.class);
     }
 
+    private final LocationListener locationListener = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
+        }
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+             /* This is called when the GPS status alters */
+        }
+        @Override
+        public void onProviderEnabled(String provider) {
+            /* This is called when the GPS status alters */
+        }
+        @Override
+        public void onProviderDisabled(String provider) {
+            /* This is called when the GPS status alters */
+        }
+    };
+
     @Override
-    public Observable<DataResponse> initialize(Context context)
-    {
+    public Observable<DataResponse> initialize(Context context) {
+
+        int p1 = ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if( ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == 0 ){
+            LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
+        }
+
         return Observable.defer(() -> {
             userSessionInfo = loadUserSession(context);
             signedIn = userSessionInfo != null;
@@ -192,8 +216,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
 
         }).doOnNext(response -> {
             // will crash if the user hasn't created a pincode yet, need to fix needsAuth()
-            if(StorageAccess.getInstance().hasPinCode(context))
-            {
+            if (StorageAccess.getInstance().hasPinCode(context)) {
                 LogExt.e(getClass(), "do on next");
                 // do nothing
             }
@@ -206,31 +229,27 @@ public abstract class ResearchNetDataProvider extends DataProvider
      * @return true if we are consented
      */
     @Override
-    public boolean isConsented(Context context)
-    {
+    public boolean isConsented(Context context) {
         return userSessionInfo.isConsented() || StorageAccess.getInstance()
                 .getFileAccess()
                 .dataExists(context, TEMP_CONSENT_JSON_FILE_NAME);
     }
 
     @Override
-    public Observable<DataResponse> withdrawConsent(Context context, String reason)
-    {
-       //TODO implement later
+    public Observable<DataResponse> withdrawConsent(Context context, String reason) {
+        //TODO implement later
         return null;
     }
 
     @Override
-    public Observable<DataResponse> signUp(Context context, String email, String username, String password)
-    {
+    public Observable<DataResponse> signUp(Context context, String email, String username, String password) {
         // we should pass in data groups, remove roles
         SignUpBody body = new SignUpBody(getStudyId(), email, username, password, null, null);
 
         // saving email to user object should exist elsewhere.
         // Save email to user object.
         ResearchNetUser user = loadUser(context);
-        if(user == null)
-        {
+        if (user == null) {
             user = new ResearchNetUser();
         }
 
@@ -252,34 +271,27 @@ public abstract class ResearchNetDataProvider extends DataProvider
     }
 
 
+
     @Override
-    public Observable<DataResponse> signIn(Context context, String username, String password)
-    {
+    public Observable<DataResponse> signIn(Context context, String username, String password) {
         SignInBody body = new SignInBody(username, password);
 
         // response 412 still has a response body, so catch all http errors here
         return service.signIn(body).doOnNext(response -> {
 
-            if(response.code() == 200)
-            {
+            if (response.code() == 200) {
                 userSessionInfo = response.body();
-            }
-            else if(response.code() == 412)
-            {
-                try
-                {
+            } else if (response.code() == 412) {
+                try {
                     String errorBody = response.errorBody().string();
                     userSessionInfo = gson.fromJson(errorBody, UserSessionInfo.class);
-                }
-                catch(IOException e)
-                {
+                } catch (IOException e) {
                     throw new RuntimeException("Error deserializing server sign in response");
                 }
 
             }
 
-            if(userSessionInfo != null)
-            {
+            if (userSessionInfo != null) {
                 // if we are direct from signing in, we need to load the user profile object
                 // from the server. that wouldn't work right now
                 signedIn = true;
@@ -294,40 +306,34 @@ public abstract class ResearchNetDataProvider extends DataProvider
     }
 
     @Override
-    public Observable<DataResponse> signOut(Context context)
-    {
+    public Observable<DataResponse> signOut(Context context) {
         return null;
     }
 
     @Override
-    public Observable<DataResponse> resendEmailVerification(Context context, String email)
-    {
+    public Observable<DataResponse> resendEmailVerification(Context context, String email) {
         return null;
     }
 
     @Override
-    public boolean isSignedUp(Context context)
-    {
+    public boolean isSignedUp(Context context) {
         User user = loadUser(context);
         return user != null && user.getEmail() != null;
     }
 
     @Override
-    public boolean isSignedIn(Context context)
-    {
+    public boolean isSignedIn(Context context) {
         return signedIn;
     }
 
 
     @Override
-    public void saveConsent(Context context, TaskResult consentResult)
-    {
+    public void saveConsent(Context context, TaskResult consentResult) {
         ConsentSignatureBody signature = createConsentSignatureBody(consentResult);
         writeJsonString(context, gson.toJson(signature), TEMP_CONSENT_JSON_FILE_NAME);
 
         ResearchNetUser user = loadUser(context);
-        if(user == null)
-        {
+        if (user == null) {
             user = new ResearchNetUser();
         }
         user.setName(signature.name);
@@ -336,8 +342,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
     }
 
     @NonNull
-    protected ConsentSignatureBody createConsentSignatureBody(TaskResult consentResult)
-    {
+    protected ConsentSignatureBody createConsentSignatureBody(TaskResult consentResult) {
         StepResult<StepResult> formResult = (StepResult<StepResult>) consentResult.getStepResult(
                 ConsentTask.ID_FORM);
 
@@ -367,20 +372,17 @@ public abstract class ResearchNetDataProvider extends DataProvider
     }
 
     @Override
-    public User getUser(Context context)
-    {
+    public User getUser(Context context) {
         return loadUser(context);
     }
 
     @Override
-    public String getUserSharingScope(Context context)
-    {
+    public String getUserSharingScope(Context context) {
         return userSessionInfo.getSharingScope();
     }
 
     @Override
-    public void setUserSharingScope(Context context, String scope)
-    {
+    public void setUserSharingScope(Context context, String scope) {
 
         // This is stubbed out. //TODO Hook this up to the /consent api call
         userSessionInfo.setSharingScope(scope);
@@ -388,94 +390,75 @@ public abstract class ResearchNetDataProvider extends DataProvider
 
     }
 
-    private ConsentSignatureBody loadConsentSignatureBody(Context context)
-    {
+    private ConsentSignatureBody loadConsentSignatureBody(Context context) {
         String consentJson = loadJsonString(context, TEMP_CONSENT_JSON_FILE_NAME);
         return gson.fromJson(consentJson, ConsentSignatureBody.class);
     }
 
     @Override
-    public void uploadConsent(Context context, TaskResult consentResult)
-    {
-        //TODO Doing nothing just like my old roommate.
+    public void uploadConsent(Context context, TaskResult consentResult) {
+        //TODO Doing nothing ... fow now
     }
 
 
     @Override
-    public String getUserEmail(Context context)
-    {
+    public String getUserEmail(Context context) {
         User user = loadUser(context);
         return user == null ? null : user.getEmail();
     }
 
     @Override
-    public Observable<DataResponse> forgotPassword(Context context, String email)
-    {
+    public Observable<DataResponse> forgotPassword(Context context, String email) {
         // TODO forgot password isn't implemented yet
         return null;
     }
 
-    private void saveUserSession(Context context, UserSessionInfo userInfo)
-    {
+    private void saveUserSession(Context context, UserSessionInfo userInfo) {
         String userSessionJson = gson.toJson(userInfo);
         writeJsonString(context, userSessionJson, USER_SESSION_PATH);
     }
 
-    private ResearchNetUser loadUser(Context context)
-    {
-        try
-        {
+    private ResearchNetUser loadUser(Context context) {
+        try {
             String user = loadJsonString(context, USER_PATH);
             return gson.fromJson(user, ResearchNetUser.class);
-        }
-        catch(StorageAccessException e)
-        {
+        } catch (StorageAccessException e) {
             return null;
         }
     }
 
-    private void saveUser(Context context, ResearchNetUser profile)
-    {
+    private void saveUser(Context context, ResearchNetUser profile) {
         writeJsonString(context, gson.toJson(profile), USER_PATH);
     }
 
-    private void writeJsonString(Context context, String userSessionJson, String userSessionPath)
-    {
+    private void writeJsonString(Context context, String userSessionJson, String userSessionPath) {
         StorageAccess.getInstance()
                 .getFileAccess()
                 .writeData(context, userSessionPath, userSessionJson.getBytes());
     }
 
-    private UserSessionInfo loadUserSession(Context context)
-    {
-        try
-        {
+    private UserSessionInfo loadUserSession(Context context) {
+        try {
             String userSessionJson = loadJsonString(context, USER_SESSION_PATH);
             return gson.fromJson(userSessionJson, UserSessionInfo.class);
-        }
-        catch(StorageAccessException e)
-        {
+        } catch (StorageAccessException e) {
             return null;
         }
     }
 
-    private String loadJsonString(Context context, String path)
-    {
+    private String loadJsonString(Context context, String path) {
         return new String(StorageAccess.getInstance().getFileAccess().readData(context, path));
     }
 
     @Override
-    public SchedulesAndTasksModel loadTasksAndSchedules(Context context)
-    {
+    public SchedulesAndTasksModel loadTasksAndSchedules(Context context) {
         SchedulesAndTasksModel schedulesAndTasksModel = getTasksAndSchedules().create(context);
 
         AppDatabase db = StorageAccess.getInstance().getAppDatabase();
 
         List<SchedulesAndTasksModel.ScheduleModel> schedules = new ArrayList<>();
-        for(SchedulesAndTasksModel.ScheduleModel schedule : schedulesAndTasksModel.schedules)
-        {
-            if(schedule.tasks.size() == 0)
-            {
+        for (SchedulesAndTasksModel.ScheduleModel schedule : schedulesAndTasksModel.schedules) {
+            if (schedule.tasks.size() == 0) {
                 LogExt.e(getClass(), "No tasks in schedule");
                 continue;
             }
@@ -483,8 +466,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
             // only supporting one task per schedule for now
             SchedulesAndTasksModel.TaskScheduleModel task = schedule.tasks.get(0);
 
-            if(task.taskFileName == null)
-            {
+            if (task.taskFileName == null) {
                 LogExt.e(getClass(), "No filename found for task with id: " + task.taskID);
                 continue;
             }
@@ -497,16 +479,12 @@ public abstract class ResearchNetDataProvider extends DataProvider
             // cache cron string for later lookup
             loadedTaskCrons.put(taskModel.identifier, schedule.scheduleString);
 
-            if(result == null)
-            {
+            if (result == null) {
                 schedules.add(schedule);
-            }
-            else if(StringUtils.isNotEmpty(schedule.scheduleString))
-            {
+            } else if (StringUtils.isNotEmpty(schedule.scheduleString)) {
                 Date date = ScheduleHelper.nextSchedule(schedule.scheduleString,
                         result.getEndDate());
-                if(date.before(new Date()))
-                {
+                if (date.before(new Date())) {
                     schedules.add(schedule);
                 }
             }
@@ -516,8 +494,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
         return schedulesAndTasksModel;
     }
 
-    private TaskModel loadTaskModel(Context context, SchedulesAndTasksModel.TaskScheduleModel task)
-    {
+    private TaskModel loadTaskModel(Context context, SchedulesAndTasksModel.TaskScheduleModel task) {
         TaskModel taskModel = ResourceManager.getInstance()
                 .getTask(task.taskFileName)
                 .create(context);
@@ -530,11 +507,9 @@ public abstract class ResearchNetDataProvider extends DataProvider
     }
 
     @Override
-    public Task loadTask(Context context, SchedulesAndTasksModel.TaskScheduleModel task)
-    {
+    public Task loadTask(Context context, SchedulesAndTasksModel.TaskScheduleModel task) {
         // currently we only support task json files, override this method to taskClassName
-        if(StringUtils.isEmpty(task.taskFileName))
-        {
+        if (StringUtils.isEmpty(task.taskFileName)) {
             return null;
         }
 
@@ -544,50 +519,51 @@ public abstract class ResearchNetDataProvider extends DataProvider
     }
 
     @Override
-    public void uploadTaskResult(Context context, TaskResult taskResult)
-    {
+    public void uploadTaskResult(Context context, TaskResult taskResult) {
         // Update/Create TaskNotificationService
-        if(AppPrefs.getInstance(context).isTaskReminderEnabled())
-        {
-            Log.i("ApplicationDataProvider", "uploadTaskResult() _ isTaskReminderEnabled() = true");
+        if (AppPrefs.getInstance(context).isTaskReminderEnabled()) {
+            Log.i(getClass().getName(), "uploadTaskResult() _ isTaskReminderEnabled() = true");
 
             String chronTime = findChronTime(taskResult.getIdentifier());
 
             // If chronTime is null then either the task is not repeating OR its not found within
             // the task_and_schedules.xml
-            if(chronTime != null)
-            {
+            if (chronTime != null) {
                 scheduleReminderNotification(context, taskResult.getEndDate(), chronTime);
             }
         }
 
-        List<BridgeDataInput> files = new ArrayList<>();
+        SubmissionBody submissionBody = new SubmissionBody();
+        String deviceId = Secure.getString(context.getContentResolver(), Secure.ANDROID_ID);
+        submissionBody.setDeviceId(deviceId);
+
+        // like this: 2015-12-17T18:52:49.963458Z
+        SimpleDateFormat sdfr = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        submissionBody.setTimeStart(sdfr.format(taskResult.getStartDate()) );
+        submissionBody.setTimeComplete(sdfr.format(taskResult.getEndDate()) );
+        submissionBody.setLatitude( latitude.toString());
+        submissionBody.setLongitude( longitude.toString());
 
         for(StepResult stepResult : taskResult.getResults().values())
         {
             SurveyAnswer surveyAnswer = SurveyAnswer.create(stepResult);
-            files.add(new BridgeDataInput(surveyAnswer,
-                    SurveyAnswer.class,
-                    stepResult.getIdentifier() + ".json",
-                    FormatHelper.DEFAULT_FORMAT.format(stepResult.getEndDate())));
+            submissionBody.addResponse(stepResult.getIdentifier(),stepResult.getResult().toString());
         }
 
-        uploadBridgeData(context,
-                new Info(context,
-                        getGuid(taskResult.getIdentifier()),
-                        getCreatedOnDate(taskResult.getIdentifier())),
-                files);
+        uploadSurveyData(context, submissionBody);
     }
 
-    public void uploadBridgeData(Context context, Info info, BridgeDataInput... dataFiles)
+    public Observable<DataResponse> uploadSurveyData(Context context, SubmissionBody submissionBody)
     {
-        uploadBridgeData(context, info, Arrays.asList(dataFiles));
-    }
 
-    public void uploadBridgeData(Context context, Info info, List<BridgeDataInput> dataFiles)
-    {
-        //TODO to implement using a researchnet API
-        return;
+        return service.surveySubmission(submissionBody).map(message -> {
+
+            Log.i(getClass().getName(), "uploadSurveyData()" + message.message());
+            DataResponse response = new DataResponse();
+            response.setSuccess(true);
+            return response;
+        });
+
     }
 
     // these stink, I should be able to query the DB and find these
@@ -624,7 +600,6 @@ public abstract class ResearchNetDataProvider extends DataProvider
 
     @Override
     public abstract void processInitialTaskResult(Context context, TaskResult taskResult);
-
 
     /**
      * 400	BadRequestException	            variable
@@ -673,7 +648,6 @@ public abstract class ResearchNetDataProvider extends DataProvider
 
     public interface ResearchnetService
     {
-
         /**
          * @return One of the following responses
          * <ul>
@@ -683,7 +657,7 @@ public abstract class ResearchNetDataProvider extends DataProvider
          */
         @Headers("Content-Type: application/json")
         @POST("participant/")
-        Observable<BridgeMessageResponse> signUp(@Body SignUpBody body);
+        Observable<ResearchNetMessageResponse> signUp(@Body SignUpBody body);
 
         /**
          * @return One of the following responses
@@ -697,8 +671,17 @@ public abstract class ResearchNetDataProvider extends DataProvider
         @POST("api-token-auth/")
         Observable<Response<UserSessionInfo>> signIn(@Body SignInBody body);
 
-
-
+        /**
+         * @return One of the following responses
+         * <ul>
+         * <li><b>200</b> returns message that everything went fine</li>
+         * <li><b>400</b> Bad Request</li>
+         * <li><b>401</b> Unauthorized</li>
+         * </ul>
+         */
+        @Headers("Content-Type: application/json")
+        @POST("submission/")
+        Observable<Response<ResearchNetMessageResponse>> surveySubmission(@Body SubmissionBody body);
 
 
     }

@@ -35,6 +35,12 @@ public class ApplicationSettingsFragment extends org.researchstack.skin.ui.fragm
     }
 
     @Override
+    public String formatSharingOption(String option) {
+        //TODO format when sharing is workin
+        return getString(R.string.rsb_consent_share_no);
+    }
+
+    @Override
     public String getVersionString()
     {
         return getString(org.researchstack.skin.R.string.rss_settings_version,

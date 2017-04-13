@@ -13,7 +13,15 @@ public class UserSessionInfo {
     /**
      * The users session token
      */
-    private String sessionToken;
+    private String token;
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     /**
      * True if the user has consented to some form of data sharing; false otherwise (in other words,
@@ -118,15 +126,6 @@ public class UserSessionInfo {
         this.username = username;
     }
 
-    public String getSessionToken()
-    {
-        return sessionToken;
-    }
-
-    public void setSessionToken(String sessionToken)
-    {
-        this.sessionToken = sessionToken;
-    }
 
     public boolean isDataSharing()
     {

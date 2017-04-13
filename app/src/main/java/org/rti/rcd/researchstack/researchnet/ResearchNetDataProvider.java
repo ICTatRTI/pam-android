@@ -141,9 +141,9 @@ public abstract class ResearchNetDataProvider extends DataProvider {
     private void buildRetrofitService(UserSessionInfo userSessionInfo) {
         final String sessionToken;
         if (userSessionInfo != null) {
-            sessionToken = userSessionInfo.getSessionToken();
+            sessionToken = userSessionInfo.getToken();
         } else {
-            sessionToken = "";
+            sessionToken = getReearchnetAppKey();
         }
 
         Interceptor headerInterceptor = chain -> {
@@ -151,7 +151,7 @@ public abstract class ResearchNetDataProvider extends DataProvider {
 
             Request request = original.newBuilder()
                     .header("User-Agent", getUserAgent())
-                    .header("Authorization", "Token " + getReearchnetAppKey())
+                    .header("Authorization", "Token " + sessionToken)
                     .method(original.method(), original.body())
                     .build();
 
@@ -199,9 +199,7 @@ public abstract class ResearchNetDataProvider extends DataProvider {
 
     @Override
     public Observable<DataResponse> initialize(Context context) {
-
-        int p1 = ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
-
+        
         if( ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == 0 ){
             LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
@@ -217,7 +215,7 @@ public abstract class ResearchNetDataProvider extends DataProvider {
         }).doOnNext(response -> {
             // will crash if the user hasn't created a pincode yet, need to fix needsAuth()
             if (StorageAccess.getInstance().hasPinCode(context)) {
-                LogExt.e(getClass(), "do on next");
+                LogExt.e(getClass(), "---------------------------------- do on next");
                 // do nothing
             }
         });
@@ -230,9 +228,7 @@ public abstract class ResearchNetDataProvider extends DataProvider {
      */
     @Override
     public boolean isConsented(Context context) {
-        return userSessionInfo.isConsented() || StorageAccess.getInstance()
-                .getFileAccess()
-                .dataExists(context, TEMP_CONSENT_JSON_FILE_NAME);
+        return true; //TODO to implement later
     }
 
     @Override
@@ -556,7 +552,14 @@ public abstract class ResearchNetDataProvider extends DataProvider {
     public Observable<DataResponse> uploadSurveyData(Context context, SubmissionBody submissionBody)
     {
 
-        return service.surveySubmission(submissionBody).map(message -> {
+        return service.surveySubmission(submissionBody).doOnNext(response -> {
+
+            if (response.code() == 200) {
+                Log.i(getClass().getName(), "Everything is okay");
+            }
+
+
+        }).map(message -> {
 
             Log.i(getClass().getName(), "uploadSurveyData()" + message.message());
             DataResponse response = new DataResponse();

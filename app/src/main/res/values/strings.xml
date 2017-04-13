@@ -12,4 +12,6 @@
     </string>
     <string name="sample_notification_example">Notification Permission</string>
     <string name="grant">Grant</string>
+    <string name="rss_confirm_summary">We\’ve just sent you an welcome email to %1$s. You\'re all set.
+    </string>
 </resources>

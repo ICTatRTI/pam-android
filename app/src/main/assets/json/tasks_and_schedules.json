@@ -8,7 +8,7 @@
           "taskTitle": "About You",
           "taskID": "AboutYou-27829fa5-d731-4372-ba30-a5859f688297",
           "taskFileName": "about_you",
-          "taskClassName": "APHDailyTaskViewController",
+          "taskClassName": "WorkdayDailyTaskViewController",
           "taskCompletionTimeString": "8 Questions"
         }
       ]
@@ -16,13 +16,13 @@
 
     {
       "scheduleType": "recurring",
-      "scheduleString": "0 5 * * *",
+      "scheduleString": "* * * * *",
       "tasks": [
         {
           "taskTitle": "Daily Survey",
           "taskID": "DailyPrompt-27829fa5-d731-4372-ba30-a5859f655297",
-          "taskFileName": "asthma_daily_prompt",
-          "taskClassName": "APHDailyTaskViewController",
+          "taskFileName": "workday_daily_prompt",
+          "taskClassName": "WorkdayDailyTaskViewController",
           "taskCompletionTimeString": "1 Question"
         }
       ]

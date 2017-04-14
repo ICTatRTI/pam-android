@@ -48,8 +48,10 @@ public class ApplicationDataProvider extends ResearchNetDataProvider
     }
 
     @Override
-    protected String getReearchnetAppKey() {
+    protected String getResearchnNetAppKey() {
         return BuildConfig.RESEARCHNET_APP_KEY;
     }
+
+
 
 }

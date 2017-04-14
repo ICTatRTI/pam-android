@@ -1,10 +1,10 @@
 {
-  "identifier": "AsthmaDailyPrompt",
+  "identifier": "WorkdayDailyPrompt",
   "type": "Survey",
   "name": "WorkdayPrompt",
   "elements": [
     {
-      "identifier": "how do you feel today",
+      "identifier": "how did you get to work today",
       "prompt": "How did you get to work today?",
       "uiHint": "MultiValueConstraints",
       "guid": "c374b293-f060-4ec9-fd99-2738837967e8",
@@ -45,6 +45,35 @@
             "label": "Other"
           }
 
+        ]
+      }
+    },
+    {
+      "identifier": "how do you feel today",
+      "prompt": "Select the photo the best captures how you feel right now.",
+      "uiHint": "MultiValueConstraints",
+      "guid": "854afd00-3d2b-41c2-9f36-17c72287810f",
+      "type": "SurveyQuestion",
+      "constraints": {
+        "dataType": "integer",
+        "allowMultiple": false,
+        "type": "MultiValueConstraints",
+        "enumeration": [
+          {
+            "type": "SurveyQuestionOption",
+            "value": 1,
+            "label": "Option 1"
+          },
+          {
+            "type": "SurveyQuestionOption",
+            "value": 2,
+            "label": "Option 2"
+          },
+          {
+            "type": "SurveyQuestionOption",
+            "value": 3,
+            "label": "I choose not to answer"
+          }
         ]
       }
     }

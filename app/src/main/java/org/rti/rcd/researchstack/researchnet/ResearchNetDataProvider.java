@@ -29,6 +29,7 @@ import org.researchstack.backbone.storage.file.StorageAccessException;
 import org.researchstack.backbone.task.Task;
 import org.researchstack.backbone.ui.step.layout.ConsentSignatureStepLayout;
 import org.researchstack.backbone.utils.LogExt;
+import org.researchstack.backbone.utils.ObservableUtils;
 import org.researchstack.skin.AppPrefs;
 import org.researchstack.skin.DataProvider;
 import org.researchstack.skin.DataResponse;
@@ -101,7 +102,7 @@ public abstract class ResearchNetDataProvider extends DataProvider {
 
     protected abstract int getAppVersion();
 
-    protected abstract String getReearchnetAppKey();
+    protected abstract String getResearchnNetAppKey();
 
     private Double longitude = new Double(0.0);
     private Double latitude = new Double(0.0);
@@ -136,14 +137,16 @@ public abstract class ResearchNetDataProvider extends DataProvider {
         }
     }
 
-    public ResearchNetDataProvider() { buildRetrofitService(null);}
+    public ResearchNetDataProvider() {
+        buildRetrofitService(null);
+    }
 
     private void buildRetrofitService(UserSessionInfo userSessionInfo) {
         final String sessionToken;
         if (userSessionInfo != null) {
             sessionToken = userSessionInfo.getToken();
         } else {
-            sessionToken = getReearchnetAppKey();
+            sessionToken = getResearchnNetAppKey();
         }
 
         Interceptor headerInterceptor = chain -> {
@@ -183,14 +186,17 @@ public abstract class ResearchNetDataProvider extends DataProvider {
             longitude = location.getLongitude();
             latitude = location.getLatitude();
         }
+
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
              /* This is called when the GPS status alters */
         }
+
         @Override
         public void onProviderEnabled(String provider) {
             /* This is called when the GPS status alters */
         }
+
         @Override
         public void onProviderDisabled(String provider) {
             /* This is called when the GPS status alters */
@@ -199,8 +205,8 @@ public abstract class ResearchNetDataProvider extends DataProvider {
 
     @Override
     public Observable<DataResponse> initialize(Context context) {
-        
-        if( ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == 0 ){
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == 0) {
             LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
         }
@@ -265,7 +271,6 @@ public abstract class ResearchNetDataProvider extends DataProvider {
             return response;
         });
     }
-
 
 
     @Override
@@ -535,58 +540,54 @@ public abstract class ResearchNetDataProvider extends DataProvider {
 
         // like this: 2015-12-17T18:52:49.963458Z
         SimpleDateFormat sdfr = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        submissionBody.setTimeStart(sdfr.format(taskResult.getStartDate()) );
-        submissionBody.setTimeComplete(sdfr.format(taskResult.getEndDate()) );
-        submissionBody.setLatitude( latitude.toString());
-        submissionBody.setLongitude( longitude.toString());
+        submissionBody.setTimeStart(sdfr.format(taskResult.getStartDate()));
+        submissionBody.setTimeComplete(sdfr.format(taskResult.getEndDate()));
+        submissionBody.setLatitude(latitude.toString());
+        submissionBody.setLongitude(longitude.toString());
 
-        for(StepResult stepResult : taskResult.getResults().values())
-        {
+        for (StepResult stepResult : taskResult.getResults().values()) {
             SurveyAnswer surveyAnswer = SurveyAnswer.create(stepResult);
-            submissionBody.addResponse(stepResult.getIdentifier(),stepResult.getResult().toString());
+            submissionBody.addResponse(stepResult.getIdentifier(), stepResult.getResult().toString());
         }
 
-        uploadSurveyData(context, submissionBody);
+
+        service.surveySubmission(submissionBody)
+                .compose(ObservableUtils.applyDefault())
+                .doOnNext(response -> {
+                    if (response.isSuccess()) {
+                        Log.i(getClass().getName(), "uploadSurveyData - survey submission");
+                    } else {
+                        handleError(context, response.code());
+                    }
+                }).map(message -> {
+                    Log.i(getClass().getName(), "uploadSurveyData()" + message.message());
+                    DataResponse response = new DataResponse();
+                    response.setSuccess(true);
+                    return response;
+                }).subscribe(response ->
+                        LogExt.d(getClass(), "Response: " + response.toString() + ", message: " + response.getMessage()),
+                    error -> {
+                        error.printStackTrace();
+                        LogExt.e(getClass(), "we have a problem");
+                }
+        );
     }
 
-    public Observable<DataResponse> uploadSurveyData(Context context, SubmissionBody submissionBody)
-    {
-
-        return service.surveySubmission(submissionBody).doOnNext(response -> {
-
-            if (response.code() == 200) {
-                Log.i(getClass().getName(), "Everything is okay");
-            }
-
-
-        }).map(message -> {
-
-            Log.i(getClass().getName(), "uploadSurveyData()" + message.message());
-            DataResponse response = new DataResponse();
-            response.setSuccess(true);
-            return response;
-        });
-
-    }
 
     // these stink, I should be able to query the DB and find these
-    private String getCreatedOnDate(String identifier)
-    {
+    private String getCreatedOnDate(String identifier) {
         return loadedTaskDates.get(identifier);
     }
 
-    private String getGuid(String identifier)
-    {
+    private String getGuid(String identifier) {
         return loadedTaskGuids.get(identifier);
     }
 
-    private String findChronTime(String identifier)
-    {
+    private String findChronTime(String identifier) {
         return loadedTaskCrons.get(identifier);
     }
 
-    private void scheduleReminderNotification(Context context, Date endDate, String chronTime)
-    {
+    private void scheduleReminderNotification(Context context, Date endDate, String chronTime) {
         Log.i("ApplicationDataProvider", "scheduleReminderNotification()");
 
         // Save TaskNotification to DB
@@ -620,12 +621,10 @@ public abstract class ResearchNetDataProvider extends DataProvider {
      * 500	BridgeServerException	        variable
      * 503	ServiceUnavailableException	    variable
      **/
-    private void handleError(Context context, int responseCode)
-    {
+    private void handleError(Context context, int responseCode) {
         String intentAction = null;
 
-        switch(responseCode)
-        {
+        switch (responseCode) {
             // Not signed in.
             case 401:
                 intentAction = DataProvider.ERROR_NOT_AUTHENTICATED;
@@ -637,20 +636,17 @@ public abstract class ResearchNetDataProvider extends DataProvider {
                 break;
         }
 
-        if(intentAction != null)
-        {
+        if (intentAction != null) {
             LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(intentAction));
         }
     }
 
     // figure out what directory to save files in and where to put this method
-    public static File getFilesDir(Context context)
-    {
+    public static File getFilesDir(Context context) {
         return new File(context.getFilesDir() + "/upload_request/");
     }
 
-    public interface ResearchnetService
-    {
+    public interface ResearchnetService {
         /**
          * @return One of the following responses
          * <ul>

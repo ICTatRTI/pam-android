@@ -2,7 +2,6 @@ package org.rti.rcd.researchstack;
 import android.content.Context;
 
 import org.researchstack.backbone.answerformat.AnswerFormat;
-import org.researchstack.backbone.answerformat.BooleanAnswerFormat;
 import org.researchstack.backbone.answerformat.ChoiceAnswerFormat;
 import org.researchstack.backbone.answerformat.IntegerAnswerFormat;
 import org.researchstack.backbone.model.Choice;
@@ -26,7 +25,6 @@ public class ApplicationTaskProvider extends org.researchstack.skin.TaskProvider
 
     public ApplicationTaskProvider(Context context)
     {
-        put(TASK_ID_INITIAL, createInitialTask(context));
         put(TASK_ID_CONSENT, ConsentTask.create(context, TASK_ID_CONSENT));
         put(TASK_ID_SIGN_IN, new SignInTask(context));
         put(TASK_ID_SIGN_UP, new SignUpTask(context));
@@ -119,48 +117,7 @@ public class ApplicationTaskProvider extends org.researchstack.skin.TaskProvider
         // Profession Step
         //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-        // iOS defines this as a single choice, should be MultiChoice
-        AnswerFormat professionFormat = new ChoiceAnswerFormat(AnswerFormat.ChoiceAnswerStyle.SingleChoice,
-                new Choice<>("Chocolate", "chocolate"),
-                new Choice<>("Vanilla", "vanilla"),
-                new Choice<>("Strawberry", "strawberry"),
-                new Choice<>("Cookies & Cream", "cookies_cream"),
-                new Choice<>("I am Robot, what is ice cream?", "robot"));
-        QuestionStep professionStep = new QuestionStep("profession",
-                "What is your favorite flavor of ice cream?",
-                professionFormat);
-        professionStep.setStepTitle(R.string.task_inital_toolbar_title);
-        professionStep.setOptional(true);
 
-        // Add to Task
-        steps.add(professionStep);
-
-        //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-        // Medical Info Form Step
-        //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
-        FormStep medicalInfoForm = new FormStep("medicalInfo", "Medical Information", "");
-        medicalInfoForm.setStepTitle(R.string.task_inital_toolbar_title);
-
-        BooleanAnswerFormat booleanAnswerFormat = new BooleanAnswerFormat(context.getString(R.string.rsb_yes),
-                context.getString(R.string.rsb_no));
-
-        QuestionStep robotStep = new QuestionStep("confirmRobot",
-                "Are you a robot?",
-                booleanAnswerFormat);
-        QuestionStep autoImmuneStep = new QuestionStep("feelings",
-                "Does your robot body feel?",
-                booleanAnswerFormat);
-        QuestionStep immunocompromisedStep = new QuestionStep("arnold",
-                "Are you stronger than a T-1000?",
-                booleanAnswerFormat);
-
-        // Set items on FormStep
-        medicalInfoForm.setOptional(true);
-        medicalInfoForm.setFormSteps(robotStep, autoImmuneStep, immunocompromisedStep);
-
-        // Add to Task
-        steps.add(medicalInfoForm);
 
         //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
         // Thank You Step

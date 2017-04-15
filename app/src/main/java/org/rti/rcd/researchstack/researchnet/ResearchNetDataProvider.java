@@ -206,11 +206,6 @@ public abstract class ResearchNetDataProvider extends DataProvider {
     @Override
     public Observable<DataResponse> initialize(Context context) {
 
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == 0) {
-            LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
-        }
-
         return Observable.defer(() -> {
             userSessionInfo = loadUserSession(context);
             signedIn = userSessionInfo != null;
@@ -521,6 +516,12 @@ public abstract class ResearchNetDataProvider extends DataProvider {
 
     @Override
     public void uploadTaskResult(Context context, TaskResult taskResult) {
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == 0) {
+            LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
+        }
+
         // Update/Create TaskNotificationService
         if (AppPrefs.getInstance(context).isTaskReminderEnabled()) {
             Log.i(getClass().getName(), "uploadTaskResult() _ isTaskReminderEnabled() = true");
@@ -549,7 +550,6 @@ public abstract class ResearchNetDataProvider extends DataProvider {
             SurveyAnswer surveyAnswer = SurveyAnswer.create(stepResult);
             submissionBody.addResponse(stepResult.getIdentifier(), stepResult.getResult().toString());
         }
-
 
         service.surveySubmission(submissionBody)
                 .compose(ObservableUtils.applyDefault())

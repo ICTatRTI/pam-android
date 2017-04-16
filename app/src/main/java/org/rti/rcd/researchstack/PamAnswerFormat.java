@@ -10,6 +10,7 @@ public class PamAnswerFormat extends AnswerFormat {
     private Choice[] choices;
 
 
+
     /**
      * Creates an answer format with the specified answerStyle(single or multichoice) and collection
      * of choices.
@@ -22,6 +23,20 @@ public class PamAnswerFormat extends AnswerFormat {
         this.choices = choices.clone();
     }
 
+    public enum Type implements QuestionType {
+        Pam(PamStepBody.class);
+
+        private Class<?> stepBodyClass;
+
+        Type(Class<?> stepBodyClass)
+        {
+            this.stepBodyClass = stepBodyClass;
+        }
+        @Override
+        public Class<?> getStepBodyClass() {
+            return stepBodyClass;
+        }
+    }
     /**
      * Returns a multiple choice or single choice question type, which will decide which {@link
      * org.researchstack.backbone.ui.step.body.StepBody} to use to display this question.
@@ -30,9 +45,7 @@ public class PamAnswerFormat extends AnswerFormat {
      */
     @Override
     public QuestionType getQuestionType() {
-        return answerStyle == ChoiceAnswerStyle.MultipleChoice
-                ? Type.MultipleChoice
-                : Type.SingleChoice;
+        return Type.Pam;
     }
 
     /**

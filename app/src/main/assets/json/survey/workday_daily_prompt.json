@@ -12,7 +12,7 @@
       "constraints": {
         "dataType": "integer",
         "allowMultiple": false,
-        "type": "MultiValueConstraints",
+        "type": "PamImageConstraints",
         "enumeration": [
           {
             "type": "SurveyQuestionOption",
@@ -72,7 +72,32 @@
           {
             "type": "SurveyQuestionOption",
             "value": 3,
-            "label": "I choose not to answer"
+            "label": "Option 3"
+          },
+          {
+            "type": "SurveyQuestionOption",
+            "value": 4,
+            "label": "Option 4"
+          },
+          {
+            "type": "SurveyQuestionOption",
+            "value": 5,
+            "label": "Option 5"
+          },
+          {
+            "type": "SurveyQuestionOption",
+            "value": 6,
+            "label": "Option 6"
+          },
+          {
+            "type": "SurveyQuestionOption",
+            "value": 7,
+            "label": "Option 7"
+          },
+          {
+            "type": "SurveyQuestionOption",
+            "value": 8,
+            "label": "Option 8"
           }
         ]
       }

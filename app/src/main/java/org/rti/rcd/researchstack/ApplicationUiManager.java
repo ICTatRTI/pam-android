@@ -31,12 +31,6 @@ public class ApplicationUiManager extends org.researchstack.skin.UiManager
                 .setClass(ActivitiesFragment.class)
                 .build());
 
-        navItems.add(new ActionItem.ActionItemBuilder().setId(R.id.nav_dashboard)
-                .setTitle(R.string.rss_dashboard)
-                .setIcon(R.drawable.rss_ic_tab_dashboard)
-                .setClass(DashboardFragment.class)
-                .build());
-
         return navItems;
     }
 

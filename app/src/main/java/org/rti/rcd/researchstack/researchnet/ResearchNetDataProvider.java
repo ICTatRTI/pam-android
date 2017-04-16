@@ -38,7 +38,7 @@ import org.researchstack.skin.model.User;
 import org.researchstack.skin.notification.TaskAlertReceiver;
 import org.researchstack.skin.schedule.ScheduleHelper;
 import org.researchstack.skin.task.ConsentTask;
-import org.researchstack.skin.task.SmartSurveyTask;
+import org.rti.rcd.researchstack.SuperSurveyTask;
 import org.rti.rcd.researchstack.BuildConfig;
 import org.rti.rcd.researchstack.bridge.body.ConsentSignatureBody;
 import org.rti.rcd.researchstack.researchnet.body.SignInBody;
@@ -422,7 +422,11 @@ public abstract class ResearchNetDataProvider extends DataProvider {
 
     @Override
     public SchedulesAndTasksModel loadTasksAndSchedules(Context context) {
-        SchedulesAndTasksModel schedulesAndTasksModel = getTasksAndSchedules().create(context);
+        //SchedulesAndTasksModel schedulesAndTasksModel = getTasksAndSchedules().create(context);
+
+        SchedulesAndTasksModel schedulesAndTasksModel = ResourceManager.getInstance()
+                .getTasksAndSchedules()
+                .create(context);
 
         AppDatabase db = StorageAccess.getInstance().getAppDatabase();
 
@@ -484,7 +488,7 @@ public abstract class ResearchNetDataProvider extends DataProvider {
         }
 
         TaskModel taskModel = loadTaskModel(context, task);
-        SmartSurveyTask smartSurveyTask = new SmartSurveyTask(context, taskModel);
+        SuperSurveyTask smartSurveyTask = new SuperSurveyTask(context, taskModel);
         return smartSurveyTask;
     }
 

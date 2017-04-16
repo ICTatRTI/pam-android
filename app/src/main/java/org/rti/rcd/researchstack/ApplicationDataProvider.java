@@ -16,7 +16,9 @@ public class ApplicationDataProvider extends ResearchNetDataProvider
     @Override
     public void processInitialTaskResult(Context context, TaskResult taskResult)
     {
-        // handle result from initial task (save profile info to disk, upload to your server, etc)
+        // treat the initial task like other tasks
+        uploadTaskResult(context,taskResult);
+
     }
 
     @Override

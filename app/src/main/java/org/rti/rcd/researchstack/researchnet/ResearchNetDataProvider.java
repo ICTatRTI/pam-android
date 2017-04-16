@@ -4,10 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -104,9 +102,6 @@ public abstract class ResearchNetDataProvider extends DataProvider {
 
     protected abstract String getResearchnNetAppKey();
 
-    private Double longitude = new Double(0.0);
-    private Double latitude = new Double(0.0);
-
     private String getDeviceName() {
         String manufacturer = Build.MANUFACTURER;
         if (TextUtils.isEmpty(manufacturer)) {
@@ -138,6 +133,7 @@ public abstract class ResearchNetDataProvider extends DataProvider {
     }
 
     public ResearchNetDataProvider() {
+
         buildRetrofitService(null);
     }
 
@@ -180,28 +176,6 @@ public abstract class ResearchNetDataProvider extends DataProvider {
                 .build();
         service = retrofit.create(ResearchNetDataProvider.ResearchnetService.class);
     }
-
-    private final LocationListener locationListener = new LocationListener() {
-        public void onLocationChanged(Location location) {
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-             /* This is called when the GPS status alters */
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-            /* This is called when the GPS status alters */
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-            /* This is called when the GPS status alters */
-        }
-    };
 
     @Override
     public Observable<DataResponse> initialize(Context context) {
@@ -517,11 +491,6 @@ public abstract class ResearchNetDataProvider extends DataProvider {
     @Override
     public void uploadTaskResult(Context context, TaskResult taskResult) {
 
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == 0) {
-            LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
-        }
-
         // Update/Create TaskNotificationService
         if (AppPrefs.getInstance(context).isTaskReminderEnabled()) {
             Log.i(getClass().getName(), "uploadTaskResult() _ isTaskReminderEnabled() = true");
@@ -539,12 +508,18 @@ public abstract class ResearchNetDataProvider extends DataProvider {
         String deviceId = Secure.getString(context.getContentResolver(), Secure.ANDROID_ID);
         submissionBody.setDeviceId(deviceId);
 
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == 0) {
+            LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            Location myLocation = lm.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+            submissionBody.setLatitude(String.valueOf(myLocation.getLatitude()));
+            submissionBody.setLongitude(String.valueOf(myLocation.getLongitude()) );
+        }
+
         // like this: 2015-12-17T18:52:49.963458Z
         SimpleDateFormat sdfr = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         submissionBody.setTimeStart(sdfr.format(taskResult.getStartDate()));
         submissionBody.setTimeComplete(sdfr.format(taskResult.getEndDate()));
-        submissionBody.setLatitude(latitude.toString());
-        submissionBody.setLongitude(longitude.toString());
+
 
         for (StepResult stepResult : taskResult.getResults().values()) {
             SurveyAnswer surveyAnswer = SurveyAnswer.create(stepResult);

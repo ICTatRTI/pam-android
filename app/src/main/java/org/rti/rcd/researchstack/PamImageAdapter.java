@@ -1,16 +1,18 @@
 package org.rti.rcd.researchstack;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 
 
 public class PamImageAdapter extends BaseAdapter {
 
     private Context mContext;
+
+    private int selectedPosition = -1;
 
     public PamImageAdapter(Context c) {
         mContext = c;
@@ -34,29 +36,39 @@ public class PamImageAdapter extends BaseAdapter {
         if (convertView == null) {
             // if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(85, 85));
+            imageView.setAdjustViewBounds(true);
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setPadding(8, 8, 8, 8);
+            imageView.setPadding(1, 1, 1, 1);
         } else {
             imageView = (ImageView) convertView;
+        }
+
+        if (position == selectedPosition) {
+            imageView.setBackgroundColor(Color.BLACK);
+        } else {
+            imageView.setBackgroundColor(Color.TRANSPARENT);
         }
 
         imageView.setImageResource(mThumbIds[position]);
         return imageView;
     }
 
+    public void setSelectedPosition(int position) {
+        selectedPosition = position;
+    }
+
     // references to our images (as an example)
     private Integer[] mThumbIds = {
-            R.drawable.pam_1_1, R.drawable.pam_1_1,
-            R.drawable.pam_1_2, R.drawable.pam_1_2,
-            R.drawable.pam_1_3, R.drawable.pam_1_3,
-            R.drawable.pam_2_1, R.drawable.pam_2_1,
-            R.drawable.pam_2_2, R.drawable.pam_2_2,
-            R.drawable.pam_2_3, R.drawable.pam_2_3,
-            R.drawable.pam_3_1, R.drawable.pam_3_1,
-            R.drawable.pam_3_2, R.drawable.pam_3_2,
-            R.drawable.pam_3_3, R.drawable.pam_3_3,
-            R.drawable.pam_4_1, R.drawable.pam_4_1,
-            R.drawable.pam_4_2, R.drawable.pam_4_2
+            R.drawable.pam_1_1,
+            R.drawable.pam_1_2,
+            R.drawable.pam_1_3,
+            R.drawable.pam_2_1,
+            R.drawable.pam_2_2,
+            R.drawable.pam_2_3,
+            R.drawable.pam_3_1,
+            R.drawable.pam_3_2,
+            R.drawable.pam_3_3,
+            R.drawable.pam_4_1,
+            R.drawable.pam_4_2
     };
 }

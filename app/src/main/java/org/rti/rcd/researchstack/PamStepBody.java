@@ -1,14 +1,13 @@
 package org.rti.rcd.researchstack;
 
-import android.content.res.Resources;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatCheckBox;
+import android.graphics.Color;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.RadioGroup;
-import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.GridView;
 
 import org.researchstack.backbone.model.Choice;
 import org.researchstack.backbone.result.StepResult;
@@ -48,16 +47,30 @@ public class PamStepBody <T> implements StepBody {
     }
     @Override
     public View getBodyView(int viewType, LayoutInflater inflater, ViewGroup parent) {
-        View view = getViewForType(viewType, inflater, parent);
 
-        Resources res = parent.getResources();
-        LinearLayout.MarginLayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.leftMargin = res.getDimensionPixelSize(R.dimen.rsb_margin_left);
-        layoutParams.rightMargin = res.getDimensionPixelSize(R.dimen.rsb_margin_right);
-        view.setLayoutParams(layoutParams);
+        GridView grid = new GridView(parent.getContext());
+        grid.setId(View.generateViewId());
+        grid.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
+        grid.setBackgroundColor(Color.WHITE);
+        grid.setNumColumns(4);
+        grid.setColumnWidth(90);
+        grid.setVerticalSpacing(1);
+        grid.setHorizontalSpacing(1);
+        grid.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
+        grid.setGravity(Gravity.CENTER);
+        PamImageAdapter adapterImage = new PamImageAdapter(parent.getContext());
+        grid.setAdapter(adapterImage);
 
-        return view;
+        grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v,
+                                    int position, long id) {
+                Log.i(getClass().getName(), "PamStepBody - item clicked in position: "+ position);
+                currentSelected.add((T) Integer.valueOf(position));
+               adapterImage.setSelectedPosition(position);
+            }
+        });
+
+        return grid;
     }
 
     @Override
@@ -86,75 +99,4 @@ public class PamStepBody <T> implements StepBody {
         }
     }
 
-    private View getViewForType(int viewType, LayoutInflater inflater, ViewGroup parent)
-    {
-        if(viewType == VIEW_TYPE_DEFAULT)
-        {
-            return initViewDefault(inflater, parent);
-        }
-        else if(viewType == VIEW_TYPE_COMPACT)
-        {
-            return initViewCompact(inflater, parent);
-        }
-        else
-        {
-            throw new IllegalArgumentException("Invalid View Type");
-        }
-    }
-
-    private View initViewDefault(LayoutInflater inflater, ViewGroup parent)
-    {
-        RadioGroup radioGroup = new RadioGroup(inflater.getContext());
-        radioGroup.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
-        radioGroup.setDividerDrawable(ContextCompat.getDrawable(parent.getContext(),
-                R.drawable.rsb_divider_empty_8dp));
-
-        for(int i = 0; i < choices.length; i++)
-        {
-            Choice<T> item = choices[i];
-
-            // Create & add the View to our body-view
-            AppCompatCheckBox checkBox = (AppCompatCheckBox) inflater.inflate(R.layout.rsb_item_checkbox,
-                    radioGroup,
-                    false);
-            checkBox.setText(item.getText());
-            checkBox.setId(i);
-            radioGroup.addView(checkBox);
-
-            // Set initial state
-            if(currentSelected.contains(item.getValue()))
-            {
-                checkBox.setChecked(true);
-            }
-
-            // Update result when value changes
-            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-
-                if(isChecked)
-                {
-                    currentSelected.add(item.getValue());
-                }
-                else
-                {
-                    currentSelected.remove(item.getValue());
-                }
-            });
-        }
-
-        return radioGroup;
-    }
-
-    private View initViewCompact(LayoutInflater inflater, ViewGroup parent)
-    {
-        ViewGroup compactView = (ViewGroup) initViewDefault(inflater, parent);
-
-        TextView label = (TextView) inflater.inflate(R.layout.rsb_item_text_view_title_compact,
-                compactView,
-                false);
-        label.setText(step.getTitle());
-
-        compactView.addView(label, 0);
-
-        return compactView;
-    }
 }

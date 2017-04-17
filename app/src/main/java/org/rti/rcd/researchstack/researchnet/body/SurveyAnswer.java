@@ -29,6 +29,7 @@ public class SurveyAnswer {
 
     public static SurveyAnswer create(StepResult stepResult)
     {
+
         AnswerFormat.Type type = (AnswerFormat.Type) stepResult.getAnswerFormat().getQuestionType();
         SurveyAnswer answer;
         switch(type)
@@ -49,17 +50,12 @@ public class SurveyAnswer {
             case Date:
                 answer = new DateSurveyAnswer(stepResult);
                 break;
-            case None:
-            case Scale:
             case Decimal:
-            case Eligibility:
             case TimeOfDay:
             case DateAndTime:
-            case TimeInterval:
-            case Location:
             case Form:
             default:
-                throw new RuntimeException("Cannot upload this question type to bridge");
+                throw new RuntimeException("Cannot upload this question type");
         }
         return answer;
     }

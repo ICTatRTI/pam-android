@@ -12,7 +12,7 @@
       "constraints": {
         "dataType": "integer",
         "allowMultiple": false,
-        "type": "PamImageConstraints",
+        "type": "MultiValueConstraints",
         "enumeration": [
           {
             "type": "SurveyQuestionOption",
@@ -57,7 +57,7 @@
       "constraints": {
         "dataType": "integer",
         "allowMultiple": false,
-        "type": "MultiValueConstraints",
+        "type": "PamImageConstraints",
         "enumeration": [
           {
             "type": "SurveyQuestionOption",

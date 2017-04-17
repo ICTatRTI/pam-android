@@ -38,13 +38,12 @@ import org.researchstack.skin.model.User;
 import org.researchstack.skin.notification.TaskAlertReceiver;
 import org.researchstack.skin.schedule.ScheduleHelper;
 import org.researchstack.skin.task.ConsentTask;
-import org.rti.rcd.researchstack.SuperSurveyTask;
 import org.rti.rcd.researchstack.BuildConfig;
+import org.rti.rcd.researchstack.SuperSurveyTask;
 import org.rti.rcd.researchstack.bridge.body.ConsentSignatureBody;
 import org.rti.rcd.researchstack.researchnet.body.SignInBody;
 import org.rti.rcd.researchstack.researchnet.body.SignUpBody;
 import org.rti.rcd.researchstack.researchnet.body.SubmissionBody;
-import org.rti.rcd.researchstack.researchnet.body.SurveyAnswer;
 
 import java.io.File;
 import java.io.IOException;
@@ -526,7 +525,6 @@ public abstract class ResearchNetDataProvider extends DataProvider {
 
 
         for (StepResult stepResult : taskResult.getResults().values()) {
-            SurveyAnswer surveyAnswer = SurveyAnswer.create(stepResult);
             submissionBody.addResponse(stepResult.getIdentifier(), stepResult.getResult().toString());
         }
 

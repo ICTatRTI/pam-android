@@ -2,6 +2,14 @@ package org.rti.rcd.researchstack;
 
 import org.researchstack.backbone.answerformat.AnswerFormat;
 import org.researchstack.backbone.model.Choice;
+import org.researchstack.backbone.ui.step.body.DateQuestionBody;
+import org.researchstack.backbone.ui.step.body.DecimalQuestionBody;
+import org.researchstack.backbone.ui.step.body.DurationQuestionBody;
+import org.researchstack.backbone.ui.step.body.FormBody;
+import org.researchstack.backbone.ui.step.body.IntegerQuestionBody;
+import org.researchstack.backbone.ui.step.body.MultiChoiceQuestionBody;
+import org.researchstack.backbone.ui.step.body.SingleChoiceQuestionBody;
+import org.researchstack.backbone.ui.step.body.TextQuestionBody;
 
 
 public class PamAnswerFormat extends AnswerFormat {
@@ -24,7 +32,18 @@ public class PamAnswerFormat extends AnswerFormat {
     }
 
     public enum Type implements QuestionType {
-        Pam(PamStepBody.class);
+        Pam(PamStepBody.class),
+        SingleChoice(SingleChoiceQuestionBody.class),
+        MultipleChoice(MultiChoiceQuestionBody.class),
+        Decimal(DecimalQuestionBody.class),
+        Integer(IntegerQuestionBody.class),
+        Boolean(SingleChoiceQuestionBody.class),
+        Text(TextQuestionBody.class),
+        TimeOfDay(DateQuestionBody.class),
+        DateAndTime(DateQuestionBody.class),
+        Date(DateQuestionBody.class),
+        Duration(DurationQuestionBody.class),
+        Form(FormBody.class);
 
         private Class<?> stepBodyClass;
 

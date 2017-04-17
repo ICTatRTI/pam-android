@@ -24,3 +24,7 @@ android:
     # - sys-img-x86-android-17
 
 script: ./gradlew build
+branches:
+  only:
+  - master
+  - stable

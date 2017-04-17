@@ -50,23 +50,24 @@ public class PamStepBody <T> implements StepBody {
 
         GridView grid = new GridView(parent.getContext());
         grid.setId(View.generateViewId());
-        grid.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
+        grid.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT));
+        //grid.setLayoutParams(new GridView.LayoutParams(new GridView.LayoutParams(400, 400)));
         grid.setBackgroundColor(Color.WHITE);
         grid.setNumColumns(4);
-        grid.setColumnWidth(90);
-        grid.setVerticalSpacing(1);
-        grid.setHorizontalSpacing(1);
+        grid.setColumnWidth(100);
+        grid.setVerticalSpacing(5);
+        grid.setHorizontalSpacing(5);
         grid.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
         grid.setGravity(Gravity.CENTER);
         PamImageAdapter adapterImage = new PamImageAdapter(parent.getContext());
         grid.setAdapter(adapterImage);
+        grid.setSelector(R.drawable.list_selector);
 
         grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
                 Log.i(getClass().getName(), "PamStepBody - item clicked in position: "+ position);
                 currentSelected.add((T) Integer.valueOf(position));
-               adapterImage.setSelectedPosition(position);
             }
         });
 

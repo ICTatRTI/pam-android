@@ -1,7 +1,6 @@
 package org.rti.rcd.researchstack;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -11,8 +10,6 @@ import android.widget.ImageView;
 public class PamImageAdapter extends BaseAdapter {
 
     private Context mContext;
-
-    private int selectedPosition = -1;
 
     public PamImageAdapter(Context c) {
         mContext = c;
@@ -43,19 +40,10 @@ public class PamImageAdapter extends BaseAdapter {
             imageView = (ImageView) convertView;
         }
 
-        if (position == selectedPosition) {
-            imageView.setBackgroundColor(Color.BLACK);
-        } else {
-            imageView.setBackgroundColor(Color.TRANSPARENT);
-        }
-
         imageView.setImageResource(mThumbIds[position]);
         return imageView;
     }
 
-    public void setSelectedPosition(int position) {
-        selectedPosition = position;
-    }
 
     // references to our images (as an example)
     private Integer[] mThumbIds = {

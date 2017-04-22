@@ -48,13 +48,15 @@ public class PamStepBody <T> implements StepBody {
     @Override
     public View getBodyView(int viewType, LayoutInflater inflater, ViewGroup parent) {
 
+        int h = parent.getContext().getResources().getDisplayMetrics().densityDpi;
+
         GridView grid = new GridView(parent.getContext());
         grid.setId(View.generateViewId());
-        grid.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT));
-        //grid.setLayoutParams(new GridView.LayoutParams(new GridView.LayoutParams(400, 400)));
+        grid.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,h * 2));
+        //grid.setLayoutParams(new GridView.LayoutParams(h - 45, h - 39));
         grid.setBackgroundColor(Color.WHITE);
         grid.setNumColumns(4);
-        grid.setColumnWidth(100);
+        grid.setColumnWidth(30);
         grid.setVerticalSpacing(5);
         grid.setHorizontalSpacing(5);
         grid.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);

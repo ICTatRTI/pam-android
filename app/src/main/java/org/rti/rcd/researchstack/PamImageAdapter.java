@@ -48,15 +48,20 @@ public class PamImageAdapter extends BaseAdapter {
     // references to our images (as an example)
     private Integer[] mThumbIds = {
             R.drawable.pam_1_1,
-            R.drawable.pam_1_2,
-            R.drawable.pam_1_3,
             R.drawable.pam_2_1,
-            R.drawable.pam_2_2,
-            R.drawable.pam_2_3,
             R.drawable.pam_3_1,
-            R.drawable.pam_3_2,
-            R.drawable.pam_3_3,
             R.drawable.pam_4_1,
-            R.drawable.pam_4_2
+            R.drawable.pam_5_1,
+            R.drawable.pam_6_1,
+            R.drawable.pam_7_1,
+            R.drawable.pam_8_1,
+            R.drawable.pam_9_1,
+            R.drawable.pam_10_1,
+            R.drawable.pam_11_1,
+            R.drawable.pam_12_1,
+            R.drawable.pam_13_1,
+            R.drawable.pam_14_1,
+            R.drawable.pam_15_1,
+            R.drawable.pam_16_1,
     };
 }
